@@ -20,6 +20,14 @@ from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.tools import tool
+
+# Pinecone and OpenAI for search
+from pinecone import Pinecone
+from openai import OpenAI
+
+# Import filter builder helpers
+from filter_builder_tools import build_default_user_filter, build_food_search_filter
 
 # Load environment variables
 load_dotenv()
@@ -31,6 +39,86 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
+
+@tool("search_pinecone")
+def search_pinecone(
+    query_text: str,
+    filter_dict: Dict[str, Any] = None,
+    top_k: int = 10
+) -> Dict[str, Any]:
+    """
+    Search for food items in Pinecone using semantic search and optional metadata filtering.
+    
+    Args:
+        query_text: The search query (e.g., "spicy Indian food", "cold drinks", "vegetarian pasta")
+        filter_dict: Optional filter dictionary for metadata filtering (e.g., price, allergies, dietary preferences)
+        top_k: Number of results to return (default: 10)
+    
+    Returns:
+        Dictionary containing search results with food items and metadata
+    """
+    try:
+        logger.info(f"Searching Pinecone for: {query_text}")
+        logger.info(f"Using filter: {filter_dict}")
+        
+        # Initialize Pinecone client
+        pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+        
+        # Get index
+        index_name = os.getenv("PINECONE_INDEX_NAME", "unifeast-food-index")
+        index = pc.Index(index_name)
+        
+        # Get namespace from environment
+        namespace = os.getenv("PINECONE_NAMESPACE", "__default__")
+        
+        # Get embedding for query
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        response = client.embeddings.create(
+            input=query_text,
+            model="text-embedding-3-small"
+        )
+        query_embedding = response.data[0].embedding
+        
+        # Perform search (with or without filter)
+        if filter_dict:
+            search_results = index.query(
+                vector=query_embedding,
+                filter=filter_dict,
+                top_k=top_k,
+                namespace=namespace,
+                include_metadata=True
+            )
+        else:
+            search_results = index.query(
+                vector=query_embedding,
+                top_k=top_k,
+                namespace=namespace,
+                include_metadata=True
+            )
+        
+        # Process results
+        food_items = []
+        for match in search_results.matches:
+            food_item = {
+                "id": match.id,
+                "score": match.score,
+                "metadata": match.metadata
+            }
+            food_items.append(food_item)
+        
+        result = {
+            "query": query_text,
+            "filter_used": filter_dict,
+            "total_results": len(food_items),
+            "food_items": food_items
+        }
+        
+        logger.info(f"Found {len(food_items)} food items")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Failed to search Pinecone: {e}")
+        return {"error": f"Failed to search Pinecone: {str(e)}"}
 
 class MCPToolsTester:
     """Simple MCP tools tester - no agent, just direct tool testing."""
@@ -73,31 +161,39 @@ class MCPToolsTester:
                         "AWS_REGION": os.getenv("AWS_REGION", "us-west-2")
                     }
                 },
-                "postgresql": {
-                    "transport": "stdio",
-                    "command": "docker",
-                    "args": [
-                        "run", "-i", "--rm",
-                        "-e", "AWS_ACCESS_KEY_ID",
-                        "-e", "AWS_SECRET_ACCESS_KEY",
-                        "-e", "AWS_REGION",
-                        "awslabs/postgres-mcp-server:latest",
-                        "--resource_arn", os.getenv("FOOD_DB_ARN"),
-                        "--secret_arn", os.getenv("FOOD_DB_SECRET"),
-                        "--database", os.getenv("FOOD_DB_NAME", "postgres"),
-                        "--region", os.getenv("AWS_REGION", "us-west-2"),
-                        "--readonly", os.getenv("FOOD_DB_READONLY", "true")
-                    ],
-                    "env": {
-                        "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID"),
-                        "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY"),
-                        "AWS_REGION": os.getenv("AWS_REGION", "us-west-2")
-                    }
-                }
+                # "postgresql": {
+                #     "transport": "stdio",
+                #     "command": "docker",
+                #     "args": [
+                #         "run", "-i", "--rm",
+                #         "-e", "AWS_ACCESS_KEY_ID",
+                #         "-e", "AWS_SECRET_ACCESS_KEY",
+                #         "-e", "AWS_REGION",
+                #         "awslabs/postgres-mcp-server:latest",
+                #         "--resource_arn", os.getenv("FOOD_DB_ARN"),
+                #         "--secret_arn", os.getenv("FOOD_DB_SECRET"),
+                #         "--database", os.getenv("FOOD_DB_NAME", "postgres"),
+                #         "--region", os.getenv("AWS_REGION", "us-west-2"),
+                #         "--readonly", os.getenv("FOOD_DB_READONLY", "true")
+                #     ],
+                #     "env": {
+                #         "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID"),
+                #         "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY"),
+                #         "AWS_REGION": os.getenv("AWS_REGION", "us-west-2")
+                #     }
+                # }
             })
             # Load tools from MCP servers using proper conversion
-            self.tools = await self.mcp_client.get_tools()
-            logger.info(f"✅ Loaded {len(self.tools)} tools from MCP servers")
+            mcp_tools = await self.mcp_client.get_tools()
+            logger.info(f"✅ Loaded {len(mcp_tools)} tools from MCP servers")
+            
+            # Add our single Pinecone search tool
+            custom_tools = [search_pinecone]
+            
+            # Combine MCP tools with custom tools
+            self.tools = mcp_tools + custom_tools
+            logger.info(f"✅ Added 1 custom Pinecone search tool")
+            logger.info(f"✅ Total tools available: {len(self.tools)}")
             # Debug: Show what the tools actually look like
             for tool in self.tools:
                 if tool.name == 'get_item':
@@ -125,9 +221,9 @@ class MCPToolsTester:
         logger.info("🧪 Testing LangChain agent with MCP tools...")
         
         try:
-            # Get tools from MCP client
-            tools = await self.mcp_client.get_tools()
-            logger.info(f"✅ Loaded {len(tools)} MCP tools from client")
+            # Use the combined tools (MCP + custom) from setup
+            tools = self.tools
+            logger.info(f"✅ Using {len(tools)} combined tools (MCP + custom)")
             
             # Debug: Show what the agent tools look like
             for tool in tools:
@@ -148,7 +244,7 @@ class MCPToolsTester:
             )
             
             # Load the system prompt from file
-            with open('system_prompt.txt', 'r') as f:
+            with open('system_prompt_with_pinecone.txt', 'r') as f:
                 system_prompt = f.read()
             
             # Create prompt template
@@ -166,7 +262,10 @@ class MCPToolsTester:
             test_queries = [
                 "Get my user profile",
                 "Update my dietary preferences back to vegetarian", 
-                "Find spicy Indian food recommendations for me"
+                "Find spicy Indian food recommendations for me",
+                "I want cold drinks under £5",
+                "Show me vegetarian pasta options",
+                "What's available for breakfast under £8?"
             ]
             
             try:

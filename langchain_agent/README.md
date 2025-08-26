@@ -19,7 +19,28 @@ A LangChain agent that connects to DynamoDB and PostgreSQL MCP servers with conv
 
 ## Setup
 
-### 1. Environment Setup
+### 1. Docker Setup (Recommended)
+
+The easiest way to run everything is using Docker:
+
+```bash
+# Make sure you're in the langchain_agent directory
+cd langchain_agent
+
+# Copy environment template and fill in your API keys
+cp env.example .env
+
+# Edit .env with your actual API keys
+nano .env  # or use your preferred editor
+
+# Start all services (MCP servers + agent)
+docker-compose up
+
+# In another terminal, run the agent
+docker-compose exec langchain-agent python main.py
+```
+
+### 2. Manual Setup (Alternative)
 
 ```bash
 # Activate the conda environment
@@ -29,33 +50,38 @@ conda activate langchain_env
 python test_setup.py
 ```
 
-### 2. Environment Variables
+### 3. Environment Variables
 
-Ensure your `.env` file contains:
+Copy `env.example` to `.env` and fill in your API keys:
 
 ```env
-# AWS Credentials
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+# AWS Credentials (Required for DynamoDB and PostgreSQL MCP servers)
+AWS_ACCESS_KEY_ID=your_aws_access_key_here
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key_here
 AWS_REGION=us-west-2
 
-# PostgreSQL Database
-FOOD_DB_ARN=your_postgres_arn
-FOOD_DB_SECRET=your_postgres_secret
+# Pinecone Configuration (Required for food search)
+PINECONE_API_KEY=your_pinecone_api_key_here
+PINECONE_INDEX_NAME=unifeast-food-index
+PINECONE_NAMESPACE=__default__
+
+# OpenAI Configuration (Required for LLM)
+OPENAI_API_KEY=your_openai_api_key_here
+
+# PostgreSQL Aurora Configuration (Required for food database)
+FOOD_DB_ARN=arn:aws:rds:us-west-2:123456789012:cluster:unifeast-food-db
+FOOD_DB_SECRET=arn:aws:secretsmanager:us-west-2:123456789012:secret:unifeast-food-db-secret
 FOOD_DB_NAME=postgres
 FOOD_DB_READONLY=true
-
-# OpenAI API
-OPENAI_API_KEY=your_openai_api_key
 ```
 
-### 3. MCP Servers
+### 4. MCP Servers
 
 The agent automatically connects to:
 - **DynamoDB MCP Server**: For user profile management
 - **PostgreSQL MCP Server**: For food data queries
 
-Both servers run via Docker containers.
+Both servers run via Docker containers and are managed by docker-compose.
 
 ## Usage
 
@@ -160,18 +186,24 @@ Agent: "Based on our conversation, your current profile shows:
 
 ### Common Issues
 
-1. **MCP Server Connection Failed**
-   - Ensure Docker is running
-   - Check AWS credentials
-   - Verify MCP server images are available
+1. **Docker Issues**
+   - Ensure Docker Desktop is running
+   - Check `docker-compose up` output for errors
+   - Verify all required images are pulled: `docker images`
 
-2. **OpenAI API Errors**
-   - Verify API key is set correctly
+2. **MCP Server Connection Failed**
+   - Ensure Docker is running
+   - Check AWS credentials in `.env` file
+   - Verify MCP server images are available: `docker images | grep awslabs`
+
+3. **OpenAI API Errors**
+   - Verify API key is set correctly in `.env`
    - Check API key permissions
    - Ensure sufficient credits
 
-3. **Environment Variables Missing**
-   - Run `python test_setup.py` to check
+4. **Environment Variables Missing**
+   - Copy `env.example` to `.env`: `cp env.example .env`
+   - Fill in all required API keys
    - Verify `.env` file exists and is properly formatted
 
 ### Debug Mode

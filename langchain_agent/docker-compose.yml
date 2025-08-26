@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # DynamoDB MCP Server for user profiles
+  dynamodb-mcp:
+    image: awslabs/dynamodb-mcp-server:latest
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-west-2}
+    command: ["--table_name", "unifeast-users", "--region", "${AWS_REGION:-us-west-2}"]
+    networks:
+      - unifeast-network
+    restart: unless-stopped
+
+  # PostgreSQL MCP Server for food database
+  postgresql-mcp:
+    image: awslabs/postgres-mcp-server:latest
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-west-2}
+      - FOOD_DB_ARN=${FOOD_DB_ARN}
+      - FOOD_DB_SECRET=${FOOD_DB_SECRET}
+      - FOOD_DB_NAME=${FOOD_DB_NAME:-postgres}
+      - FOOD_DB_READONLY=${FOOD_DB_READONLY:-true}
+    command: [
+      "--resource_arn", "${FOOD_DB_ARN}",
+      "--secret_arn", "${FOOD_DB_SECRET}",
+      "--database", "${FOOD_DB_NAME:-postgres}",
+      "--region", "${AWS_REGION:-us-west-2}",
+      "--readonly", "${FOOD_DB_READONLY:-true}"
+    ]
+    networks:
+      - unifeast-network
+    restart: unless-stopped
+
+  # PostgreSQL Database (local development fallback)
+  postgresql:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=unifeast_db
+      - POSTGRES_USER=unifeast_user
+      - POSTGRES_PASSWORD=unifeast_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./config/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - unifeast-network
+    restart: unless-stopped
+
+  # Langchain Agent Container
+  langchain-agent:
+    build: .
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-west-2}
+      - PINECONE_API_KEY=${PINECONE_API_KEY}
+      - PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME:-unifeast-food-index}
+      - PINECONE_NAMESPACE=${PINECONE_NAMESPACE:-__default__}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FOOD_DB_ARN=${FOOD_DB_ARN}
+      - FOOD_DB_SECRET=${FOOD_DB_SECRET}
+      - FOOD_DB_NAME=${FOOD_DB_NAME:-postgres}
+      - FOOD_DB_READONLY=${FOOD_DB_READONLY:-true}
+    volumes:
+      - .:/app
+    working_dir: /app
+    depends_on:
+      - dynamodb-mcp
+      - postgresql-mcp
+    networks:
+      - unifeast-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+networks:
+  unifeast-network:
+    driver: bridge
