@@ -2,218 +2,251 @@
 Pinecone Search Tool for LangChain Agent
 ========================================
 
-Custom tool for semantic search and metadata filtering of food items using Pinecone.
-Based on the working logic from test_pinecone.py.
+A tool for performing semantic search with metadata filtering on Pinecone food database.
+This tool is used by the agent to find food recommendations based on user preferences and search criteria.
 """
 
 import os
 import logging
-from typing import Dict, List, Optional, Any
-from dotenv import load_dotenv
-from pinecone import Pinecone
-from openai import OpenAI
+from typing import Dict, List, Any, Optional
 from langchain.tools import tool
+from pinecone.core import Pinecone
+from openai import OpenAI
 
-# Load environment variables
-load_dotenv()
-
-# Configure logging
 logger = logging.getLogger(__name__)
 
-# Get credentials from .env
-PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
-PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME', 'unifeast-food-02')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
-# Initialize clients
-pc = Pinecone(api_key=PINECONE_API_KEY)
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
+def get_openai_client():
+    """Get OpenAI client with API key from environment."""
+    return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def get_embedding(text: str) -> List[float]:
-    """Get embedding from OpenAI for semantic search."""
+    """Get embedding for text using OpenAI."""
     try:
-        response = openai_client.embeddings.create(
-            model="text-embedding-ada-002",
-            input=text
+        client = get_openai_client()
+        response = client.embeddings.create(
+            input=text,
+            model="text-embedding-3-small"
         )
         return response.data[0].embedding
     except Exception as e:
         logger.error(f"Failed to get embedding: {e}")
-        raise
+        return []
 
-def format_food_result(match: Any) -> Dict[str, Any]:
-    """Format a Pinecone match into a structured food item with all available metadata."""
-    metadata = match.metadata
-    
-    return {
-        # Core identification
-        "id": match.id,
-        "score": round(match.score, 4),
-        "original_id": metadata.get('id', 'N/A'),
-        
-        # Basic food info
-        "dish_name": metadata.get('dish_name', 'N/A'),
-        "description": metadata.get('description', 'N/A'),
-        "notes": metadata.get('notes', 'N/A'),
-        "category": metadata.get('category', 'N/A'),
-        "cuisine_type": metadata.get('cuisine_type', 'N/A'),
-        "food_type": metadata.get('food_type', 'N/A'),
-        
-        # Ingredients and dietary info
-        "ingredients": metadata.get('ingredients', []),
-        "dietary_tags": metadata.get('dietary_tags', []),
-        
-        # Pricing
-        "student_price": metadata.get('student_price', 'N/A'),
-        "staff_price": metadata.get('staff_price', 'N/A'),
-        
-        # Restaurant and location
-        "restaurant_name": metadata.get('restaurant_name', 'N/A'),
-        "restaurant_id": metadata.get('restaurant_id', 'N/A'),
-        "location": metadata.get('location', 'N/A'),
-        "opening_hours": metadata.get('opening_hours', 'N/A'),
-        
-        # Timing and availability
-        "serve_time": metadata.get('serve_time', 'N/A'),
-        "available": metadata.get('available', False),
-        
-        # Allergy information (boolean flags)
-        "milk_allergy": metadata.get('milk_allergy', False),
-        "eggs_allergy": metadata.get('eggs_allergy', False),
-        "peanuts_allergy": metadata.get('peanuts_allergy', False),
-        "tree_nuts_allergy": metadata.get('tree_nuts_allergy', False),
-        "shellfish_allergy": metadata.get('shellfish_allergy', False),
-        "other_allergens": metadata.get('other_allergens', []),
-        
-        # Additional fields
-        "accessibility": metadata.get('accessibility', ''),
-        "text": metadata.get('text', ''),  # Combined text field for embeddings
-        "_ab_stream": metadata.get('_ab_stream', '')  # Data stream source
-    }
-
-@tool("search_food")
-def search_food(query: str, filter: Optional[Dict[str, Any]] = None, top_k: int = 10) -> List[Dict[str, Any]]:
+@tool("search_food_recommendations")
+def search_food_recommendations(
+    query_text: str,
+    filter_dict: Dict[str, Any],
+    top_k: int = 10,
+    namespace: str = "food"
+) -> Dict[str, Any]:
     """
-    Search for food items using semantic search and metadata filtering.
+    Search for food recommendations using Pinecone with semantic search and metadata filtering.
     
     Args:
-        query: Natural language search query (e.g., "spicy Indian food", "cold drinks")
-        filter: Optional metadata filter dict for precise filtering
-        top_k: Number of results to return (default: 10, max: 100)
+        query_text: The search query (e.g., "spicy Indian food", "vegetarian pasta")
+        filter_dict: The filter dictionary from filter_builder_tools.py
+        top_k: Number of results to return (default: 10)
+        namespace: Pinecone namespace (default: "food")
     
     Returns:
-        List of food items with comprehensive structured data including name, price, description, 
-        allergies, restaurant info, location, timing, and more.
-    
-    Available filter fields:
-        Pricing:
-            - student_price: {"$lte": 5.0} or {"$gte": 3.0}
-            - staff_price: {"$lte": 8.0}
-        
-        Cuisine and Categories:
-            - cuisine_type: {"$in": ["Indian", "Chinese", "Mexican"]}
-            - category: {"$in": ["Burritos", "Beverages", "Snacks"]}
-            - food_type: {"$in": ["savory", "sweet"]}
-        
-        Dietary Preferences:
-            - dietary_tags: {"$in": ["vegetarian", "vegan", "spicy", "gluten_free"]}
-        
-        Allergy Filters (boolean fields):
-            - milk_allergy: {"$eq": false} (safe for milk allergy)
-            - eggs_allergy: {"$eq": false} (safe for egg allergy)
-            - peanuts_allergy: {"$eq": false} (safe for peanut allergy)
-            - tree_nuts_allergy: {"$eq": false} (safe for tree nut allergy)
-            - shellfish_allergy: {"$eq": false} (safe for shellfish allergy)
-            - other_allergens: {"$nin": ["gluten", "soy"]} (exclude specific allergens)
-        
-        Restaurant and Location:
-            - restaurant_name: {"$in": ["La Cantina", "Campus Cafe"]}
-            - restaurant_id: {"$eq": "la_cantina"}
-            - location: {"$in": ["Level 2 Sherfield Building", "Main Campus"]}
-        
-        Timing and Availability:
-            - serve_time: {"$in": ["breakfast", "lunch", "dinner"]}
-            - available: {"$eq": true}
-            - opening_hours: {"$regex": "Monday-Friday"}
-        
-        General:
-            - _ab_stream: {"$eq": "unifeast_food"} (filter to food items only)
-    
-    Example complex filters:
-        - Vegetarian Indian food under £6: {"cuisine_type": {"$in": ["Indian"]}, "dietary_tags": {"$in": ["vegetarian"]}, "student_price": {"$lte": 6.0}}
-        - Safe for milk and egg allergies: {"milk_allergy": {"$eq": false}, "eggs_allergy": {"$eq": false}}
-        - Lunch items at specific location: {"serve_time": {"$eq": "lunch"}, "location": {"$in": ["Level 2 Sherfield Building"]}}
+        Dictionary containing search results with food items and metadata
     """
     try:
-        # Validate inputs
-        if not query or not query.strip():
-            raise ValueError("Query cannot be empty")
+        logger.info(f"Searching for: {query_text}")
+        logger.info(f"Using filter: {filter_dict}")
         
-        if top_k <= 0 or top_k > 100:
-            raise ValueError("top_k must be between 1 and 100")
+        # Initialize Pinecone client
+        pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
         
-        # Get embedding for semantic search
-        logger.info(f"Getting embedding for query: {query}")
-        embedding = get_embedding(query)
+        # Get index
+        index_name = os.getenv("PINECONE_INDEX_NAME", "unifeast-food-index")
+        index = pc.Index(index_name)
         
-        # Get Pinecone index
-        index = pc.Index(name=PINECONE_INDEX_NAME)
+        # Get embedding for query
+        query_embedding = get_embedding(query_text)
+        if not query_embedding:
+            return {"error": "Failed to generate embedding for query"}
         
-        # Prepare query parameters
-        query_params = {
-            "vector": embedding,
-            "top_k": top_k,
-            "include_metadata": True,
-            "namespace": "__default__"  # Using default namespace as per your working test
+        # Perform hybrid search (vector + metadata filtering)
+        search_results = index.query(
+            vector=query_embedding,
+            filter=filter_dict,
+            top_k=top_k,
+            namespace=namespace,
+            include_metadata=True
+        )
+        
+        # Process results
+        food_items = []
+        for match in search_results.matches:
+            food_item = {
+                "id": match.id,
+                "score": match.score,
+                "metadata": match.metadata
+            }
+            food_items.append(food_item)
+        
+        result = {
+            "query": query_text,
+            "filter_used": filter_dict,
+            "total_results": len(food_items),
+            "food_items": food_items
         }
         
-        # Add filter if provided
-        if filter:
-            query_params["filter"] = filter
-            logger.info(f"Applying filter: {filter}")
-        
-        # Execute search
-        logger.info(f"Searching Pinecone with query: {query}")
-        results = index.query(**query_params)
-        
-        # Format results
-        formatted_results = []
-        for match in results.matches:
-            food_item = format_food_result(match)
-            formatted_results.append(food_item)
-        
-        logger.info(f"Found {len(formatted_results)} food items")
-        return formatted_results
+        logger.info(f"Found {len(food_items)} food items")
+        return result
         
     except Exception as e:
-        logger.error(f"Search failed: {e}")
-        return {
-            "error": f"Search failed: {str(e)}",
-            "results": []
+        logger.error(f"Failed to search food recommendations: {e}")
+        return {"error": f"Failed to search food recommendations: {str(e)}"}
+
+def search_food_recommendations_test(
+    query_text: str,
+    filter_dict: Dict[str, Any],
+    top_k: int = 10,
+    namespace: str = "food"
+) -> Dict[str, Any]:
+    """
+    Test version of search_food_recommendations without @tool decorator.
+    """
+    try:
+        logger.info(f"Searching for: {query_text}")
+        logger.info(f"Using filter: {filter_dict}")
+        
+        # Initialize Pinecone client
+        pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+        
+        # Get index
+        index_name = os.getenv("PINECONE_INDEX_NAME", "unifeast-food-index")
+        index = pc.Index(index_name)
+        
+        # Get embedding for query
+        query_embedding = get_embedding(query_text)
+        if not query_embedding:
+            return {"error": "Failed to generate embedding for query"}
+        
+        # Perform hybrid search (vector + metadata filtering)
+        search_results = index.query(
+            vector=query_embedding,
+            filter=filter_dict,
+            top_k=top_k,
+            namespace=namespace,
+            include_metadata=True
+        )
+        
+        # Process results
+        food_items = []
+        for match in search_results.matches:
+            food_item = {
+                "id": match.id,
+                "score": match.score,
+                "metadata": match.metadata
+            }
+            food_items.append(food_item)
+        
+        result = {
+            "query": query_text,
+            "filter_used": filter_dict,
+            "total_results": len(food_items),
+            "food_items": food_items
         }
+        
+        logger.info(f"Found {len(food_items)} food items")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Failed to search food recommendations: {e}")
+        return {"error": f"Failed to search food recommendations: {str(e)}"}
+
+@tool("search_food_by_cuisine")
+def search_food_by_cuisine(
+    cuisine_type: str,
+    filter_dict: Dict[str, Any],
+    top_k: int = 10
+) -> Dict[str, Any]:
+    """
+    Search for food items by cuisine type with user preferences filtering.
+    
+    Args:
+        cuisine_type: The cuisine type (e.g., "Indian", "Chinese", "Italian")
+        filter_dict: The filter dictionary from filter_builder_tools.py
+        top_k: Number of results to return (default: 10)
+    
+    Returns:
+        Dictionary containing food items of the specified cuisine
+    """
+    try:
+        query_text = f"{cuisine_type} food"
+        return search_food_recommendations(query_text, filter_dict, top_k)
+        
+    except Exception as e:
+        logger.error(f"Failed to search food by cuisine: {e}")
+        return {"error": f"Failed to search food by cuisine: {str(e)}"}
+
+@tool("search_food_by_price_range")
+def search_food_by_price_range(
+    max_price: float,
+    filter_dict: Dict[str, Any],
+    top_k: int = 10
+) -> Dict[str, Any]:
+    """
+    Search for food items within a specific price range.
+    
+    Args:
+        max_price: Maximum price to search for
+        filter_dict: The filter dictionary from filter_builder_tools.py
+        top_k: Number of results to return (default: 10)
+    
+    Returns:
+        Dictionary containing food items within the price range
+    """
+    try:
+        # Update filter with price constraint
+        updated_filter = filter_dict.copy()
+        user_identity = filter_dict.get("user_identity", "student")
+        
+        if user_identity == "student":
+            updated_filter["student_price"] = {"$lte": max_price}
+        elif user_identity == "staff":
+            updated_filter["staff_price"] = {"$lte": max_price}
+        
+        query_text = f"food under £{max_price}"
+        return search_food_recommendations(query_text, updated_filter, top_k)
+        
+    except Exception as e:
+        logger.error(f"Failed to search food by price range: {e}")
+        return {"error": f"Failed to search food by price range: {str(e)}"}
 
 # Example usage and testing
 if __name__ == "__main__":
-    # Test the tool
     print("🧪 Testing Pinecone Search Tool")
     print("=" * 50)
     
-    # Test 1: Basic search
-    print("\n1. Basic search for 'cold drinks':")
-    results = search_food("cold drinks", top_k=3)
-    for i, item in enumerate(results, 1):
-        print(f"  {i}. {item['dish_name']} - £{item['student_price']}")
+    # Test filter (example from filter_builder_tools.py)
+    test_filter = {
+        "milk_allergy": {"$eq": False},
+        "eggs_allergy": {"$eq": False},
+        "peanuts_allergy": {"$eq": False},
+        "shellfish_allergy": {"$eq": False},
+        "other_allergies": {"$nin": ["banana", "noodles"]},
+        "dietary_preferences": {"$in": ["vegetarian"]},
+        "student_price": {"$lte": 8.0},
+        "cuisine_type": {"$in": ["Indian"]}
+    }
     
-    # Test 2: Search with price filter
-    print("\n2. Search for 'coffee' under £4:")
-    results = search_food("coffee", filter={"student_price": {"$lte": 4.0}}, top_k=3)
-    for i, item in enumerate(results, 1):
-        print(f"  {i}. {item['dish_name']} - £{item['student_price']}")
+    # Test 1: Search for spicy Indian food
+    print("\n1. Searching for spicy Indian food:")
+    result1 = search_food_recommendations("spicy Indian food", test_filter, top_k=5)
+    print(f"Results: {result1}")
     
-    # Test 3: Search with cuisine filter
-    print("\n3. Search for 'food' in Indian cuisine:")
-    results = search_food("food", filter={"cuisine_type": {"$in": ["Indian"]}}, top_k=3)
-    for i, item in enumerate(results, 1):
-        print(f"  {i}. {item['dish_name']} - {item['cuisine_type']}")
+    # Test 2: Search by cuisine
+    print("\n2. Searching by cuisine (Chinese):")
+    result2 = search_food_by_cuisine("Chinese", test_filter, top_k=5)
+    print(f"Results: {result2}")
     
-    print("\n✅ Tool testing completed!") 
+    # Test 3: Search by price range
+    print("\n3. Searching by price range (£5):")
+    result3 = search_food_by_price_range(5.0, test_filter, top_k=5)
+    print(f"Results: {result3}")
+    
+    print("\n✅ Pinecone search tool testing completed!") 
