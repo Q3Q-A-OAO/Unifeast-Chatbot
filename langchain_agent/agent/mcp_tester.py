@@ -273,8 +273,8 @@ class MCPToolsTester:
             prompt_file = settings.SYSTEM_PROMPT_FILE
             # Make path absolute to work in Railway container
             if not os.path.isabs(prompt_file):
-                # In Railway, the working directory is /app, so we need to go up one level to find langchain_agent
-                prompt_file = os.path.join("/app", prompt_file)
+                # In Railway, the working directory is /app, so the correct path is /app/langchain_agent/agent/prompts/
+                prompt_file = os.path.join("/app", "langchain_agent", "agent", "prompts", "system_prompt_with_pinecone.txt")
             with open(prompt_file, 'r') as f:
                 system_prompt = f.read()
             
