@@ -45,9 +45,15 @@ async def lifespan(app: FastAPI):
         chatbot_instance = MCPToolsTester()
         custom_tools = [search_pinecone]
         
-        # Setup MCP servers - let the agent decide which tools to use
-        await chatbot_instance.setup_mcp_servers(custom_tools)
-        logger.info("✅ Chatbot initialized with full MCP server access")
+        # Try MCP servers first, fallback to Pinecone only
+        try:
+            await chatbot_instance.setup_mcp_servers(custom_tools)
+            logger.info("✅ Chatbot initialized with full MCP server access")
+        except Exception as mcp_error:
+            logger.warning(f"⚠️ MCP servers failed: {mcp_error}")
+            logger.info("🔄 Using Pinecone search only")
+            # Set tools directly for Pinecone-only mode
+            chatbot_instance.tools = custom_tools
         
     except Exception as e:
         logger.error(f"❌ Failed to initialize chatbot: {e}")
