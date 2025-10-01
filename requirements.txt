@@ -1,3 +1,7 @@
+# FastAPI and server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
 # LangChain and MCP Adapters
 langchain==0.3.27
 langchain-community==0.3.27
@@ -8,7 +12,6 @@ langchain-mcp-adapters==0.1.9
 # MCP (Model Context Protocol) and Server
 mcp>=1.9.2
 starlette>=0.27.0
-uvicorn>=0.24.0
 click>=8.0.0
 
 # OpenAI (for LLM)
@@ -36,4 +39,4 @@ httpx>=0.23.0
 pydantic>=2.7.4
 
 # Memory and Storage
-sqlalchemy>=2.0.0 
+sqlalchemy>=2.0.0

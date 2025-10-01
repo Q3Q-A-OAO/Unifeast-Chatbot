@@ -7,8 +7,8 @@ Test the complete workflow from user preferences to food recommendations.
 
 import os
 from dotenv import load_dotenv
-from filter_builder_tools import build_default_user_filter, build_food_search_filter
-from pinecone_search_tool import search_food_recommendations_test
+from agent.tools.filter_builder_tools import build_default_user_filter, build_food_search_filter
+from agent.pinecone_search import search_pinecone
 
 # Load environment variables from current directory
 load_dotenv(".env")
