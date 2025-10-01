@@ -8,12 +8,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Install uv for running MCP servers
+RUN pip install uv
+
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install MCP servers
-RUN pip install awslabs.dynamodb-mcp-server awslabs.postgres-mcp-server
 
 # Copy app code
 COPY . .
