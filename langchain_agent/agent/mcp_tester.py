@@ -253,6 +253,46 @@ class MCPToolsTester:
             logger.error(f"❌ Conversation setup failed: {e}")
             raise
     
+    async def get_chat_response(self, message: str, user_id: str, session_id: str) -> str:
+        """Get a chat response from the MCP chatbot."""
+        try:
+            # Initialize user memory if needed
+            if not self.current_memory or self.current_user_id != user_id:
+                self.current_user_id = user_id
+                self.initialize_user_memory(user_id)
+            
+            # Setup MCP servers if not already done
+            if not self.mcp_client:
+                self.setup_mcp_servers()
+            
+            # Create agent
+            agent_executor = await self.create_agent()
+            
+            # Get memory context
+            memory_context = self.get_memory_context()
+            
+            # Prepare input with memory
+            agent_input = {
+                "input": message,
+                **memory_context
+            }
+            
+            # Get response from agent
+            result = await agent_executor.ainvoke(agent_input)
+            
+            # Save conversation to memory
+            if self.current_memory:
+                self.current_memory.save_context(
+                    {"input": message},
+                    {"output": result['output']}
+                )
+            
+            return result['output']
+            
+        except Exception as e:
+            logger.error(f"❌ Error getting chat response: {e}")
+            return f"I'm sorry, I encountered an error: {str(e)}"
+    
     async def cleanup(self):
         """Cleanup MCP client connections."""
         if self.mcp_client:
