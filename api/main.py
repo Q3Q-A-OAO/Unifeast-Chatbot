@@ -41,13 +41,20 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Starting UniFeast MCP Chatbot API")
     try:
+        # Initialize the existing MCPToolsTester agent
         chatbot_instance = MCPToolsTester()
         custom_tools = [search_pinecone]
-        await chatbot_instance.setup_mcp_servers(custom_tools)
-        logger.info("✅ Chatbot initialized successfully")
+        
+        # Use the existing agent's setup method but skip MCP servers for Railway
+        # Just set the tools directly
+        chatbot_instance.tools = custom_tools
+        
+        # The agent will initialize itself when get_chat_response is called
+        
+        logger.info("✅ Chatbot initialized with existing agent and Pinecone search")
     except Exception as e:
-        logger.error(f"❌ Failed to initialize MCP servers: {e}")
-        logger.info("🔄 Continuing without MCP servers - using basic functionality")
+        logger.error(f"❌ Failed to initialize chatbot: {e}")
+        logger.info("🔄 Continuing without chatbot - using basic functionality")
         # Don't raise the exception - allow API to start with limited functionality
         chatbot_instance = None
     
@@ -127,7 +134,7 @@ async def chat(request: ChatRequest):
     
     try:
         if not chatbot_instance:
-            # Fallback response when MCP servers are not available
+            # Fallback response when chatbot is not available
             response = f"I received your message: '{request.message}'. The full chatbot functionality will be available soon!"
             logger.info(f"Using fallback response for user {user_id}: {request.message}")
         else:
@@ -135,7 +142,7 @@ async def chat(request: ChatRequest):
             if not chatbot_instance.current_user_id:
                 chatbot_instance.initialize_user_memory(user_id)
             
-            # Process the message
+            # Process the message using the existing agent
             logger.info(f"Processing message from user {user_id}: {request.message}")
             response = await process_message(request.message, user_id, session_id)
         
@@ -151,66 +158,16 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")
 
 async def process_message(message: str, user_id: str, session_id: str) -> str:
-    """Process a chat message using the full MCP agent with memory"""
+    """Process a chat message using the existing MCPToolsTester agent"""
     try:
-        # Initialize user memory if needed
-        if not chatbot_instance.current_user_id:
-            chatbot_instance.initialize_user_memory(user_id)
-        
-        # Get memory context
-        memory_context = chatbot_instance.get_memory_context()
-        
-        # Use the full agent executor (this is the proper way)
-        # For now, we'll use a simplified version that still uses the tools
-        from langchain_openai import ChatOpenAI
-        from langchain.agents import AgentExecutor, create_openai_functions_agent
-        from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-        
-        # Initialize LLM
-        llm = ChatOpenAI(
-            model=settings.OPENAI_MODEL,
-            temperature=settings.OPENAI_TEMPERATURE,
-            openai_api_key=settings.OPENAI_API_KEY
-        )
-        
-        # Load system prompt
-        prompt_file = os.path.join(os.path.dirname(__file__), '..', 'langchain_agent', 'agent', 'prompts', 'system_prompt_with_pinecone.txt')
-        with open(prompt_file, 'r') as f:
-            system_prompt = f.read()
-        
-        # Create prompt template with memory support
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad"),
-        ])
-        
-        # Create agent with all tools
-        agent = create_openai_functions_agent(llm, chatbot_instance.tools, prompt)
-        agent_executor = AgentExecutor(agent=agent, tools=chatbot_instance.tools, verbose=True)
-        
-        # Prepare input with memory
-        agent_input = {
-            "input": message,
-            **memory_context
-        }
-        
-        # Execute the agent
-        result = await agent_executor.ainvoke(agent_input)
-        
-        # Save conversation to memory
-        if chatbot_instance.current_memory:
-            chatbot_instance.current_memory.save_context(
-                {"input": message},
-                {"output": result['output']}
-            )
-        
-        return result['output']
+        # Use the existing agent's get_chat_response method
+        response = await chatbot_instance.get_chat_response(message, user_id, session_id)
+        return response
         
     except Exception as e:
         logger.error(f"Error processing message: {e}")
         return f"I'm sorry, I encountered an error processing your request: {str(e)}"
+
 
 if __name__ == "__main__":
     import uvicorn
