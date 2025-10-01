@@ -46,8 +46,10 @@ async def lifespan(app: FastAPI):
         await chatbot_instance.setup_mcp_servers(custom_tools)
         logger.info("✅ Chatbot initialized successfully")
     except Exception as e:
-        logger.error(f"❌ Failed to initialize chatbot: {e}")
-        raise
+        logger.error(f"❌ Failed to initialize MCP servers: {e}")
+        logger.info("🔄 Continuing without MCP servers - using basic functionality")
+        # Don't raise the exception - allow API to start with limited functionality
+        chatbot_instance = None
     
     yield
     
@@ -119,24 +121,23 @@ async def health_check():
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """Main chat endpoint"""
-    if not chatbot_instance:
-        raise HTTPException(status_code=503, detail="Chatbot not initialized")
+    # Use provided user_id or default
+    user_id = request.user_id or settings.DEFAULT_USER_ID
+    session_id = request.session_id or f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     try:
-        # Use provided user_id or default
-        user_id = request.user_id or settings.DEFAULT_USER_ID
-        session_id = request.session_id or f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        
-        # Initialize user memory if needed
-        if not chatbot_instance.current_user_id:
-            chatbot_instance.initialize_user_memory(user_id)
-        
-        # Process the message
-        logger.info(f"Processing message from user {user_id}: {request.message}")
-        
-        # For now, we'll use a simple response mechanism
-        # In a full implementation, you'd use the agent executor
-        response = await process_message(request.message, user_id, session_id)
+        if not chatbot_instance:
+            # Fallback response when MCP servers are not available
+            response = f"I received your message: '{request.message}'. The full chatbot functionality will be available soon!"
+            logger.info(f"Using fallback response for user {user_id}: {request.message}")
+        else:
+            # Initialize user memory if needed
+            if not chatbot_instance.current_user_id:
+                chatbot_instance.initialize_user_memory(user_id)
+            
+            # Process the message
+            logger.info(f"Processing message from user {user_id}: {request.message}")
+            response = await process_message(request.message, user_id, session_id)
         
         return ChatResponse(
             response=response,
