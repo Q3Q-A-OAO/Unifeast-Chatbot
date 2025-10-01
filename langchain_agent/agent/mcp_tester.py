@@ -75,13 +75,9 @@ class MCPToolsTester:
             self.mcp_client = MultiServerMCPClient({
                 "dynamodb": {
                     "transport": "stdio",
-                    "command": "docker",
+                    "command": "uvx",
                     "args": [
-                        "run", "-i", "--rm",
-                        "-e", "AWS_ACCESS_KEY_ID",
-                        "-e", "AWS_SECRET_ACCESS_KEY", 
-                        "-e", "AWS_REGION",
-                        "awslabs/dynamodb-mcp-server:latest",
+                        "awslabs.dynamodb-mcp-server",
                         "--table_name", settings.DYNAMODB_TABLE_NAME,
                         "--region", settings.AWS_REGION
                     ],
@@ -263,10 +259,36 @@ class MCPToolsTester:
             
             # Setup MCP servers if not already done
             if not self.mcp_client:
-                self.setup_mcp_servers()
+                custom_tools = [search_pinecone] if 'search_pinecone' in globals() else []
+                await self.setup_mcp_servers(custom_tools)
+            
+            # Create agent using the same logic as start_conversation
+            tools = self.tools
+            logger.info(f"✅ Using {len(tools)} tools for chat response")
+            
+            # Initialize LLM
+            llm = ChatOpenAI(
+                model=settings.OPENAI_MODEL,
+                temperature=settings.OPENAI_TEMPERATURE,
+                openai_api_key=settings.OPENAI_API_KEY
+            )
+            
+            # Load the system prompt from file
+            prompt_file = settings.SYSTEM_PROMPT_FILE
+            with open(prompt_file, 'r') as f:
+                system_prompt = f.read()
+            
+            # Create prompt template with memory support
+            prompt = ChatPromptTemplate.from_messages([
+                ("system", system_prompt),
+                MessagesPlaceholder(variable_name="chat_history"),
+                ("human", "{input}"),
+                MessagesPlaceholder(variable_name="agent_scratchpad"),
+            ])
             
             # Create agent
-            agent_executor = await self.create_agent()
+            agent = create_openai_functions_agent(llm, tools, prompt)
+            agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
             
             # Get memory context
             memory_context = self.get_memory_context()
