@@ -87,27 +87,23 @@ class MCPToolsTester:
                         "AWS_REGION": settings.AWS_REGION
                     }
                 },
-                # "postgresql": {
-                #     "transport": "stdio",
-                #     "command": "docker",
-                #     "args": [
-                #         "run", "-i", "--rm",
-                #         "-e", "AWS_ACCESS_KEY_ID",
-                #         "-e", "AWS_SECRET_ACCESS_KEY",
-                #         "-e", "AWS_REGION",
-                #         "awslabs/postgres-mcp-server:latest",
-                #         "--resource_arn", os.getenv("FOOD_DB_ARN"),
-                #         "--secret_arn", os.getenv("FOOD_DB_SECRET"),
-                #         "--database", os.getenv("FOOD_DB_NAME", "postgres"),
-                #         "--region", os.getenv("AWS_REGION", "us-west-2"),
-                #         "--readonly", os.getenv("FOOD_DB_READONLY", "true")
-                #     ],
-                #     "env": {
-                #         "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID"),
-                #         "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY"),
-                #         "AWS_REGION": os.getenv("AWS_REGION", "us-west-2")
-                #     }
-                # }
+                "postgresql": {
+                    "transport": "stdio",
+                    "command": "python",
+                    "args": [
+                        "-m", "mcp_server_postgres",
+                        "--resource_arn", settings.FOOD_DB_ARN or "",
+                        "--secret_arn", settings.FOOD_DB_SECRET or "",
+                        "--database", settings.FOOD_DB_NAME,
+                        "--region", settings.AWS_REGION,
+                        "--readonly", settings.FOOD_DB_READONLY
+                    ],
+                    "env": {
+                        "AWS_ACCESS_KEY_ID": settings.AWS_ACCESS_KEY_ID,
+                        "AWS_SECRET_ACCESS_KEY": settings.AWS_SECRET_ACCESS_KEY,
+                        "AWS_REGION": settings.AWS_REGION
+                    }
+                }
             })
             # Load tools from MCP servers using proper conversion
             mcp_tools = await self.mcp_client.get_tools()

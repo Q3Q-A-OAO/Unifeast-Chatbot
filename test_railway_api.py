@@ -112,3 +112,4 @@ if __name__ == "__main__":
         print(f"   - POST {API_URL}/chat")
     else:
         print(f"\n❌ API needs debugging. Check Railway logs.")
+

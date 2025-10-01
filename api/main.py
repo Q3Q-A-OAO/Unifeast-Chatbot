@@ -45,13 +45,10 @@ async def lifespan(app: FastAPI):
         chatbot_instance = MCPToolsTester()
         custom_tools = [search_pinecone]
         
-        # Use the existing agent's setup method but skip MCP servers for Railway
-        # Just set the tools directly
-        chatbot_instance.tools = custom_tools
+        # Setup MCP servers - let the agent decide which tools to use
+        await chatbot_instance.setup_mcp_servers(custom_tools)
+        logger.info("✅ Chatbot initialized with full MCP server access")
         
-        # The agent will initialize itself when get_chat_response is called
-        
-        logger.info("✅ Chatbot initialized with existing agent and Pinecone search")
     except Exception as e:
         logger.error(f"❌ Failed to initialize chatbot: {e}")
         logger.info("🔄 Continuing without chatbot - using basic functionality")
