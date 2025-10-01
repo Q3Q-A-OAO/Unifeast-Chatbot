@@ -71,13 +71,13 @@ class MCPToolsTester:
         logger.info("🔧 Setting up MCP server connections...")
         
         try:
-            # Create MultiServerMCPClient with stdio transport for Docker containers
+            # Create MultiServerMCPClient with stdio transport for installed MCP servers
             self.mcp_client = MultiServerMCPClient({
                 "dynamodb": {
                     "transport": "stdio",
-                    "command": "uvx",
+                    "command": "python",
                     "args": [
-                        "awslabs.dynamodb-mcp-server",
+                        "-m", "mcp_server_dynamodb",
                         "--table_name", settings.DYNAMODB_TABLE_NAME,
                         "--region", settings.AWS_REGION
                     ],
@@ -275,6 +275,9 @@ class MCPToolsTester:
             
             # Load the system prompt from file
             prompt_file = settings.SYSTEM_PROMPT_FILE
+            # Make path absolute to work in Railway container
+            if not os.path.isabs(prompt_file):
+                prompt_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), prompt_file)
             with open(prompt_file, 'r') as f:
                 system_prompt = f.read()
             
