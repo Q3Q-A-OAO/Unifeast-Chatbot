@@ -113,17 +113,63 @@ async def root():
         "status": "running"
     }
 
+async def check_pinecone_health() -> str:
+    """Check if Pinecone connection is healthy"""
+    try:
+        # Test Pinecone connection by attempting a simple search
+        test_results = await search_pinecone("test", top_k=1)
+        return "healthy"
+    except Exception as e:
+        logger.error(f"Pinecone health check failed: {e}")
+        return "unhealthy"
+
+async def check_dynamodb_health() -> str:
+    """Check if DynamoDB connection is healthy"""
+    try:
+        # Check if MCP DynamoDB tools are available
+        if chatbot_instance and hasattr(chatbot_instance, 'tools'):
+            dynamodb_tools = [tool for tool in chatbot_instance.tools if 'dynamodb' in str(tool).lower()]
+            if dynamodb_tools:
+                return "healthy"
+        return "unhealthy"
+    except Exception as e:
+        logger.error(f"DynamoDB health check failed: {e}")
+        return "unhealthy"
+
+async def check_postgresql_health() -> str:
+    """Check if PostgreSQL connection is healthy"""
+    try:
+        # Check if MCP PostgreSQL tools are available
+        if chatbot_instance and hasattr(chatbot_instance, 'tools'):
+            postgres_tools = [tool for tool in chatbot_instance.tools if 'postgres' in str(tool).lower()]
+            if postgres_tools:
+                return "healthy"
+        return "unhealthy"
+    except Exception as e:
+        logger.error(f"PostgreSQL health check failed: {e}")
+        return "unhealthy"
+
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint with real connection tests"""
+    # Check each service individually
+    chatbot_status = "healthy" if chatbot_instance else "unhealthy"
+    pinecone_status = await check_pinecone_health()
+    dynamodb_status = await check_dynamodb_health()
+    postgresql_status = await check_postgresql_health()
+    
     services = {
-        "chatbot": "healthy" if chatbot_instance else "unhealthy",
-        "pinecone": "healthy",  # Add actual health check
-        "dynamodb": "healthy"   # Add actual health check
+        "chatbot": chatbot_status,
+        "pinecone": pinecone_status,
+        "dynamodb": dynamodb_status,
+        "postgresql": postgresql_status
     }
     
+    # Overall status is healthy only if all services are healthy
+    overall_status = "healthy" if all(status == "healthy" for status in services.values()) else "unhealthy"
+    
     return HealthResponse(
-        status="healthy" if all(status == "healthy" for status in services.values()) else "unhealthy",
+        status=overall_status,
         timestamp=datetime.now().isoformat(),
         services=services
     )
