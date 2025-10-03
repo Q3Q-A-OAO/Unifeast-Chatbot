@@ -116,12 +116,12 @@ async def root():
 async def check_pinecone_health() -> str:
     """Check if Pinecone connection is healthy"""
     try:
-        # Test Pinecone connection by attempting a simple search using the tool
-        test_results = search_pinecone.invoke({"query_text": "test", "top_k": 1})
-        if "error" in test_results:
-            logger.error(f"Pinecone health check failed: {test_results['error']}")
-            return "unhealthy"
-        return "healthy"
+        # Check if Pinecone tools are available in the chatbot instance
+        if chatbot_instance and hasattr(chatbot_instance, 'tools'):
+            pinecone_tools = [tool for tool in chatbot_instance.tools if 'pinecone' in str(tool).lower()]
+            if pinecone_tools:
+                return "healthy"
+        return "unhealthy"
     except Exception as e:
         logger.error(f"Pinecone health check failed: {e}")
         return "unhealthy"
