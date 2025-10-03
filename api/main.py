@@ -116,8 +116,11 @@ async def root():
 async def check_pinecone_health() -> str:
     """Check if Pinecone connection is healthy"""
     try:
-        # Test Pinecone connection by attempting a simple search
-        test_results = await search_pinecone("test", top_k=1)
+        # Test Pinecone connection by attempting a simple search using the tool
+        test_results = search_pinecone.invoke({"query_text": "test", "top_k": 1})
+        if "error" in test_results:
+            logger.error(f"Pinecone health check failed: {test_results['error']}")
+            return "unhealthy"
         return "healthy"
     except Exception as e:
         logger.error(f"Pinecone health check failed: {e}")
