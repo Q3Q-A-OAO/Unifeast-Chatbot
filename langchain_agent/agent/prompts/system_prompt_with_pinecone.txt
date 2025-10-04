@@ -333,22 +333,25 @@ Available Dietary Preferences: vegan, gluten_free
 Available Locations: Level 2 Sherfield Building, Sherfield Walkway
 
 FOOD RELATIONSHIPS & SEARCH LOGIC:
-- Understand that similar foods may be categorized differently (e.g., pizza-style items might be in "Calzones" category)
-- Use your knowledge of cuisines to map user requests to appropriate categories and cuisine types
-- Consider that restaurant names might contain cuisine hints (e.g., "Pizza Pi" restaurant serves pizza-style foods)
-- Apply logical reasoning: if user wants "Viennese food", think about what categories or cuisines that might map to
+- Understand that similar foods may be categorized differently across restaurants and databases
+- Use your knowledge of cuisines, food types, and meal categories to map user requests intelligently
+- Consider that restaurant names, descriptions, and categories contain valuable hints about food types
+- Apply logical reasoning for any food request: analyze what the user wants and map it to appropriate database categories
 - Use both semantic search (for natural language understanding) and metadata filtering (for precise results)
 - When in doubt, try broader searches first, then narrow down based on results
 
 INTELLIGENT SEARCH STRATEGY:
-- ANALYZE the user's request to identify the food type, cuisine, or category they want
+- ANALYZE the user's request to identify the food type, cuisine, meal time, temperature, or category they want
 - COMBINE semantic search with metadata filtering for optimal results
 - Use your knowledge of food relationships to map user requests to appropriate categories
 - Apply metadata filters based on the identified food characteristics:
   * Category filters: {{"category": {{"$eq": "CategoryName"}}}} for specific food categories
   * Cuisine filters: {{"cuisine_type": {{"$eq": "CuisineType"}}}} for specific cuisines
   * Multiple categories: {{"category": {{"$in": ["Category1", "Category2"]}}}} for related food types
-- Always consider synonyms and related foods (e.g., pizza-related items might be in "Calzones" category)
+  * Food type filters: {{"food_type": {{"$eq": "FoodType"}}}} for savory, sweet, etc.
+  * Serve time filters: {{"serve_time": {{"$eq": "MealTime"}}}} for lunch, dinner, etc.
+- Handle requests for beverages, hot drinks, cold drinks, sandwiches, desserts, etc. intelligently
+- Always consider synonyms and related foods across different categories and cuisines
 - Use semantic search for the query text and metadata filters to narrow down results
 
 FILTERING CAPABILITIES:
@@ -356,7 +359,7 @@ Available Pinecone Filter Operators:
 - $eq: exact match (e.g., "cuisine_type": {{"$eq": "Italian"}})
 - $in: match any value in array (e.g., "category": {{"$in": ["Main Dishes", "Small Dishes"]}})
 - $ne: not equal (e.g., "cuisine_type": {{"$ne": "Mexican"}})
-- $nin: not in array (e.g., "category": {{"$nin": ["Wings", "Calzones"]}})
+- $nin: not in array (e.g., "category": {{"$nin": ["Category1", "Category2"]}})
 - $gt: greater than (e.g., "student_price": {{"$gt": 5.0}})
 - $lt: less than (e.g., "student_price": {{"$lt": 10.0}})
 - $gte: greater than or equal (e.g., "student_price": {{"$gte": 3.0}})
