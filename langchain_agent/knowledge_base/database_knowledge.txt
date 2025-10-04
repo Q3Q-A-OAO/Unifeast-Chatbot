@@ -1,0 +1,274 @@
+1. Get All Unique Cuisine Types
+
+American
+British
+Café
+Chinese
+Indian
+International
+Italian
+Japanese
+Mexican
+
+
+2. Get All Unique Categories
+
+Appetizers
+Asian Drinks
+Baked Goods
+Bakery
+beverages
+Beverages
+Bottled Drinks
+Bowls
+Breakfast
+Breakfast Components
+Breakfast Sauces
+Brownies
+Bubble Tea
+burgers
+Burgers
+Burritos
+Cakes
+Calzones
+Coffee
+Cold Coffee
+Cold Drinks
+Convenience Food
+Cookies
+Cooking Essentials
+Dairy
+desserts
+Desserts
+Drink Syrups
+Energy Bars
+Energy Drinks
+Extras
+Fresh Fruit
+Fruit Juices
+Fruit Tea
+Grains
+Grilled Chicken
+Hot Breakfast
+Hot Coffee
+Hot Drinks
+Hot Food
+Hot Tea
+Iced Drinks
+Instant Food
+Jacket Potatoes
+Japanese Drinks
+Japanese Sweets
+Katsu Sets
+Korean Drinks
+Legumes
+Lunch
+Lunch Sets
+Main Dishes
+mains
+Mains
+Muffins
+Noodles
+Nuts
+Paninis
+Pantry Essentials
+Pasta
+Pastries
+Pizza
+Protein Boxes
+Ready Meals
+Rice
+Salad Bar
+salads
+Salads
+sandwiches
+Sandwiches
+sharing_platters
+sides
+Sides
+Signature Sauces
+Small Dishes
+snacks
+Snacks
+Soft Drinks
+Soups
+Specialty Coffee
+Specialty Drinks
+Sports Drinks
+Sushi
+Tinned Food
+Toppings
+Treats
+Water
+Wings
+Wraps
+Yogurt
+
+3. Get All Unique Food 
+beverage
+cold_dish
+condiment
+cooking
+dessert
+flavoring
+hot_dish
+savory
+snack
+staple
+sweet
+topping
+
+4. Get All Unique Serve Times
+all_day
+lunch
+morning
+
+5. Get All Unique Dietary Preferences
+caffeine
+gluten_free
+healthy
+high_protein
+plant_based
+spicy
+vegan
+vegetarian
+
+
+6. Get All Unique Locations
+Chemistry Building Common Room
+Foyer area Electrical Engineering Building
+Ground floor Eastside Halls (Prince's Gardens)
+Ground floor Imperial Business School Building (Exhibition Road entrance)
+Ground floor Imperial College Library (Queen's Lawn)
+Ground floor Linstead Hall (Prince's Gardens)
+Ground floor Sir Alexander Fleming Building
+Huxley Building (180 Queen's Gate)
+Junior Common Room
+Junior Common Room (Sherfield Building)
+Level 1 Sherfield Building
+Level 2 Sherfield Building
+Next to Alumni Visitor Centre (main entrance)
+Room 301 (3rd floor) Royal School of Mines Building
+Royal College of Music (Prince Consort Road)
+Senior Common Room (Level 2 Sherfield Building)
+Sherfield Walkway
+
+7. Get All Unique Restaurant Names
+Business School Café
+Chemistry Café
+College Café
+Eastside Restaurant and Bar
+Feast
+Hǎo Chí
+Huxley Café
+La Cantina
+Library Café
+Lumen Café
+Queen's Tower Rooms
+RCM Restaurant
+Royal School of Mines Café
+SCR Restaurant
+SPAR Convenience Store
+The Bakery (Starbucks)
+The Loud Bird
+The Pantry
+The Roastery
+
+8. Get Sample Data for Each Category
+| Category | Item Count | Cuisine Types in Category |
+| --- | --- | --- |
+| Beverages | 55 | American, British, Café, Chinese, Indian, International, Japanese, Mexican |
+| Snacks | 23 | British, Café, International |
+| Sides | 22 | American, Chinese, Indian, International, Mexican |
+| Mains | 20 | British, Chinese, Indian, Italian |
+| Sandwiches | 19 | British, Café |
+| Breakfast | 18 | British, Café, International |
+| Pastries | 17 | British, Café |
+| Hot Food | 15 | British, Café, International, Italian |
+| Hot Drinks | 14 | Café |
+| Hot Coffee | 12 | Café |
+| Cold Drinks | 9 | Café |
+| Soft Drinks | 8 | Café, International |
+| beverages | 8 | International |
+| Breakfast Components | 7 | Café |
+| Toppings | 7 | Café |
+| Baked Goods | 7 | Café |
+| Cookies | 7 | Café |
+| Pasta | 7 | International, Italian |
+| Main Dishes | 7 | International |
+| Fruit Tea | 6 | Café |
+| Bubble Tea | 6 | Café |
+| Small Dishes | 6 | International |
+| Sushi | 6 | International |
+| sharing_platters | 6 | International |
+| Ready Meals | 6 | International, Italian |
+| Nuts | 6 | Café, International |
+| Energy Bars | 6 | Café |
+| Japanese Sweets | 5 | International |
+| Lunch | 5 | British, Café |
+| Signature Sauces | 5 | American |
+| Specialty Coffee | 5 | Café |
+| Pizza | 5 | Italian |
+| sides | 5 | International |
+| Salads | 4 | Café |
+| Bottled Drinks | 4 | Café |
+| Burritos | 4 | Mexican |
+| Coffee | 4 | Café |
+| Fresh Fruit | 4 | Café, International |
+| Grains | 4 | International |
+| Hot Tea | 4 | Café |
+| Jacket Potatoes | 4 | British |
+| Lunch Sets | 4 | Café, Italian |
+| Soups | 4 | British, Chinese |
+| Treats | 3 | Café |
+| Wraps | 3 | American |
+| Grilled Chicken | 3 | American |
+| Salad Bar | 3 | British |
+| salads | 3 | International |
+| Appetizers | 3 | Chinese |
+| mains | 3 | International |
+| Convenience Food | 3 | Café |
+| burgers | 3 | International |
+| Energy Drinks | 3 | Café, International |
+| Muffins | 3 | Café |
+| Burgers | 3 | American |
+| Katsu Sets | 3 | Japanese |
+| Instant Food | 3 | International |
+| Paninis | 3 | Italian |
+| Bowls | 3 | Mexican |
+| Japanese Drinks | 3 | International |
+| desserts | 3 | International |
+| Breakfast Sauces | 3 | Café |
+| Calzones | 2 | International, Italian |
+| Legumes | 2 | International |
+| Extras | 2 | Japanese |
+| Noodles | 2 | Chinese |
+| Drink Syrups | 2 | Café |
+| Desserts | 2 | British |
+| Protein Boxes | 2 | Café |
+| Cooking Essentials | 2 | International |
+| Rice | 2 | Chinese |
+| sandwiches | 2 | International |
+| Wings | 2 | International |
+| Cakes | 2 | Café |
+| snacks | 2 | International |
+| Yogurt | 2 | Café |
+| Specialty Drinks | 2 | Café |
+| Tinned Food | 2 | International |
+| Hot Breakfast | 2 | British |
+| Water | 2 | International |
+| Iced Drinks | 2 | Café |
+| Sports Drinks | 1 | International |
+| Bakery | 1 | International |
+| Cold Coffee | 1 | Café |
+| Korean Drinks | 1 | International |
+| Brownies | 1 | Café |
+| Dairy | 1 | International |
+| Asian Drinks | 1 | International |
+| Pantry Essentials | 1 | International |
+| Fruit Juices | 1 | Café |
+
+
+9. Get All Unique Allergen Values
+total_items	items_with_milk	items_with_eggs	items_with_peanuts	items_with_tree_nuts	items_with_shellfish
+504	200	105	0	41	9

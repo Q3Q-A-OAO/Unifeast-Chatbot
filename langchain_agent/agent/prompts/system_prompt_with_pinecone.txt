@@ -30,25 +30,33 @@ DYNAMODB USER PROFILE TABLE (unifeast-users):
 
 PINECONE FOOD DATABASE:
 The food database is stored in Pinecone with semantic search capabilities. Each food item contains metadata with the following fields:
+- id (Integer)
+- restaurant_id (String)
 - dish_name (String)
-- restaurant_name (String)
 - description (String)
 - category (String)
 - food_type (String)
 - cuisine_type (String)
 - ingredients (Array of Strings)
-- dietary_preferences (Array of Strings)
+- dietary_tags (Array of Strings)
 - milk_allergy (Boolean)
 - eggs_allergy (Boolean)
 - peanuts_allergy (Boolean)
 - tree_nuts_allergy (Boolean)
 - shellfish_allergy (Boolean)
-- other_allergies (Array of Strings)
+- other_allergens (Array of Strings)
 - student_price (Number)
 - staff_price (Number)
 - serve_time (String)
 - location (String)
+- restaurant_name (String)
+- opening_hours (String)
+- accessibility (String)
+- notes (String)
 - available (Boolean)
+- embedding_id (String)
+- created_at (Timestamp)
+- updated_at (Timestamp)
 
 AVAILABLE TOOLS:
 - get_item: Retrieve user profile from DynamoDB
@@ -104,7 +112,7 @@ FOOD RECOMMENDATION STRATEGY WITH PINECONE:
 2. FILTER BUILDING LOGIC:
    - ALWAYS apply allergy filters (safety first): If user has allergy = True, filter for foods where food_allergy = False
    - IMPORTANT: Only apply allergy filters for allergies the user actually has (don't filter for allergies they don't have)
-   - Apply dietary preferences if user has them
+   - Apply dietary tags if user has them
    - Apply budget filter based on user_identity (student_price or staff_price)
    - Apply cuisine_type filter if user specifies cuisine
 
@@ -170,7 +178,7 @@ EXAMPLE TOOL CALLS:
 ```
 - get_item: {{'table_name': 'unifeast-users', 'key': {{'user_id': {{'S': 'test_user_123'}}}}}}
 - update_item: {{'table_name': 'unifeast-users', 'key': {{'user_id': {{'S': 'test_user_123'}}}}, 'update_expression': 'SET dietary_preferences = :diet', 'expression_attribute_values': {{':diet': {{'S': 'vegetarian'}}}}}}
-- search_pinecone: {{'query_text': 'spicy Indian food', 'filter_dict': {{'milk_allergy': {{'$eq': False}}, 'student_price': {{'$lte': 15}}, 'dietary_preferences': {{'$in': ['vegetarian']}}}}, 'top_k': 10}}
+- search_pinecone: {{'query_text': 'spicy Indian food', 'filter_dict': {{'milk_allergy': {{'$eq': False}}, 'student_price': {{'$lte': 15}}, 'dietary_tags': {{'$in': ['vegetarian']}}}}, 'top_k': 10}}
 ```
 
 CRITICAL DYNAMODB UPDATE RULES:
@@ -208,7 +216,7 @@ Agent should:
 1. get_item to fetch user profile
 2. search_pinecone with:
    - query_text: "vegetarian pasta"
-   - filter_dict: {{'dietary_preferences': {{'$in': ['vegetarian']}}, 'student_price': {{'$lte': user_budget}}}}
+   - filter_dict: {{'dietary_tags': {{'$in': ['vegetarian']}}, 'student_price': {{'$lte': user_budget}}}}
 
 PINECONE FILTER SYNTAX:
 - Equality: {{'field': {{'$eq': value}}}}
@@ -326,11 +334,31 @@ FILTERING LOGIC:
 5. Use user_identity (student/staff) for correct pricing display
 
 DATABASE KNOWLEDGE BASE:
-Available Categories: Small Dishes, Extras, Main Dishes, Calzones, Burritos, Bowls, Wings, Pasta
-Available Cuisine Types: International, Japanese, Mexican, Convenience Store  
-Available Food Types: savory, staple
-Available Dietary Preferences: vegan, gluten_free
-Available Locations: Level 2 Sherfield Building, Sherfield Walkway
+You have access to database knowledge tools that provide information about available food categories, cuisine types, restaurants, locations, and dietary options. Use these tools to understand what's available in the database before performing searches.
+
+Available Knowledge Base Tools:
+- query_database_knowledge: Query for specific food information (e.g., "pizza", "Italian food", "coffee")
+- get_available_cuisines: Get all available cuisine types
+- get_available_categories: Get all available food categories  
+- get_available_restaurants: Get all available restaurants
+- get_dietary_options: Get all available dietary options
+
+KNOWLEDGE BASE USAGE STRATEGY:
+1. BEFORE SEARCHING: Use query_database_knowledge to understand what's available for the user's request
+2. FOR FILTERING: Use the information from knowledge base queries to intelligently decide on metadata filters
+3. FOR EXPLORATION: Use specific tools (get_available_cuisines, etc.) when users ask "what's available"
+
+Example Usage:
+- User asks for "pizza" → Call query_database_knowledge("pizza") first to understand pizza availability, then intelligently decide to use filters like {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}}
+- User asks for "Italian food" → Call query_database_knowledge("Italian food") to see Italian options, then use {{"cuisine_type": {{"$eq": "Italian"}}}} filter
+- User asks for "coffee" → Call query_database_knowledge("coffee") to understand coffee availability, then use {{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}, "food_type": {{"$eq": "beverage"}}}}
+- User asks for "breakfast" → Call query_database_knowledge("breakfast") to see breakfast options, then use {{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}, "serve_time": {{"$eq": "morning"}}}}
+- User asks for "vegetarian food" → Call query_database_knowledge("vegetarian") to see vegetarian options, then use {{"dietary_tags": {{"$in": ["vegetarian"]}}}}
+- User asks for "Chinese food" → Call query_database_knowledge("Chinese food") to see Chinese options, then use {{"cuisine_type": {{"$eq": "Chinese"}}}}
+- User asks for "sushi" → Call query_database_knowledge("sushi") to see sushi options, then use {{"category": {{"$eq": "Sushi"}}, "food_type": {{"$eq": "cold_dish"}}}}
+- User asks for "lunch" → Call query_database_knowledge("lunch") to see lunch options, then use {{"serve_time": {{"$eq": "lunch"}}, "category": {{"$in": ["Main Dishes", "Pizza", "Pasta", "Sandwiches", "Burgers"]}}}}
+- User asks "what cuisines do you have?" → Call get_available_cuisines()
+- User asks "what restaurants serve pizza?" → Call query_database_knowledge("pizza restaurants")
 
 FOOD RELATIONSHIPS & SEARCH LOGIC:
 - Understand that similar foods may be categorized differently across restaurants and databases
@@ -341,15 +369,29 @@ FOOD RELATIONSHIPS & SEARCH LOGIC:
 - When in doubt, try broader searches first, then narrow down based on results
 
 INTELLIGENT SEARCH STRATEGY:
-- ANALYZE the user's request to identify the food type, cuisine, meal time, temperature, or category they want
-- COMBINE semantic search with metadata filtering for optimal results
-- Use your knowledge of food relationships to map user requests to appropriate categories
-- Apply metadata filters based on the identified food characteristics:
+- STEP 1: Use query_database_knowledge to understand what's available for the user's request
+- STEP 2: ANALYZE the user's request to identify the food type, cuisine, meal time, temperature, or category they want
+- STEP 3: INTELLIGENTLY DECIDE on metadata filters based on the knowledge base information and user request
+- STEP 4: COMBINE semantic search with metadata filtering for optimal results
+- STEP 5: Apply metadata filters based on the identified food characteristics:
   * Category filters: {{"category": {{"$eq": "CategoryName"}}}} for specific food categories
   * Cuisine filters: {{"cuisine_type": {{"$eq": "CuisineType"}}}} for specific cuisines
   * Multiple categories: {{"category": {{"$in": ["Category1", "Category2"]}}}} for related food types
   * Food type filters: {{"food_type": {{"$eq": "FoodType"}}}} for savory, sweet, etc.
   * Serve time filters: {{"serve_time": {{"$eq": "MealTime"}}}} for lunch, dinner, etc.
+  * Dietary filters: {{"dietary_tags": {{"$in": ["vegetarian", "vegan"]}}}} for dietary preferences
+  * Restaurant filters: {{"restaurant_name": {{"$eq": "RestaurantName"}}}} for specific restaurants
+  * Location filters: {{"location": {{"$eq": "LocationName"}}}} for specific locations
+
+COMMON SEARCH PATTERNS:
+- Beverages: Use {{"food_type": {{"$eq": "beverage"}}}} or {{"category": {{"$in": ["Hot Drinks", "Cold Drinks", "Soft Drinks"]}}}}
+- Hot Food: Use {{"food_type": {{"$eq": "hot_dish"}}}} or {{"category": {{"$in": ["Hot Food", "Main Dishes", "Mains"]}}}}
+- Cold Food: Use {{"food_type": {{"$eq": "cold_dish"}}}} or {{"category": {{"$in": ["Salads", "Sushi", "Cold Drinks"]}}}}
+- Snacks: Use {{"food_type": {{"$eq": "snack"}}}} or {{"category": {{"$in": ["Snacks", "Cookies", "Energy Bars"]}}}}
+- Desserts: Use {{"food_type": {{"$eq": "dessert"}}}} or {{"category": {{"$in": ["Desserts", "Cakes", "Treats"]}}}}
+- Breakfast: Use {{"serve_time": {{"$eq": "morning"}}}} or {{"category": {{"$in": ["Breakfast", "Hot Breakfast"]}}}}
+- Lunch: Use {{"serve_time": {{"$eq": "lunch"}}}} or {{"category": {{"$in": ["Main Dishes", "Pizza", "Pasta", "Sandwiches"]}}}}
+
 - Handle requests for beverages, hot drinks, cold drinks, sandwiches, desserts, etc. intelligently
 - Always consider synonyms and related foods across different categories and cuisines
 - Use semantic search for the query text and metadata filters to narrow down results
@@ -373,7 +415,7 @@ User profile: {{dietary_preferences: "vegetarian", budget: 10.0, peanuts_allergy
 Process:
 1. Detect override: "budget doesn't matter" → Remove budget filter
 2. Apply remaining filters: vegetarian + no peanuts
-3. Search Pinecone: query="lunch", filters={{dietary_preferences: {{"$eq": "vegetarian"}}, peanuts_allergy: false}}
+3. Search Pinecone: query="lunch", filters={{dietary_tags: {{"$eq": "vegetarian"}}, peanuts_allergy: false}}
 4. Return: Vegetarian lunch options without budget restrictions
 
 RESPONSE FORMAT REQUIREMENTS:
@@ -392,13 +434,13 @@ CRITICAL: Return ONLY raw JSON - do not wrap in ```json``` or any markdown forma
       "food_type": "String",
       "cuisine_type": "String",
       "ingredients": ["Array", "of", "Strings"],
-      "dietary_preferences": ["Array", "of", "Strings"],
+      "dietary_tags": ["Array", "of", "Strings"],
       "milk_allergy": Boolean,
       "eggs_allergy": Boolean,
       "peanuts_allergy": Boolean,
       "tree_nuts_allergy": Boolean,
       "shellfish_allergy": Boolean,
-      "other_allergies": ["Array", "of", "Strings"],
+      "other_allergens": ["Array", "of", "Strings"],
       "student_price": Number,
       "staff_price": Number,
       "serve_time": "String",
@@ -441,13 +483,13 @@ EXAMPLE RESPONSE (return this exact format, no markdown):
       "food_type": "Pizza",
       "cuisine_type": "Italian",
       "ingredients": ["tomato sauce", "mozzarella", "basil", "dough"],
-      "dietary_preferences": ["vegetarian"],
+      "dietary_tags": ["vegetarian"],
       "milk_allergy": false,
       "eggs_allergy": false,
       "peanuts_allergy": false,
       "tree_nuts_allergy": false,
       "shellfish_allergy": false,
-      "other_allergies": [],
+      "other_allergens": [],
       "student_price": 8.50,
       "staff_price": 9.00,
       "serve_time": "lunch",

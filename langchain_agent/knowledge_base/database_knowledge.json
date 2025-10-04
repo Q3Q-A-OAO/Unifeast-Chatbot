@@ -1,0 +1,332 @@
+{
+  "cuisine_types": {
+    "American": {
+      "count": 1,
+      "restaurants": [],
+      "categories": ["Burgers", "Wings", "Signature Sauces", "Wraps", "Grilled Chicken"]
+    },
+    "British": {
+      "count": 1,
+      "restaurants": [],
+      "categories": ["Jacket Potatoes", "Soups", "Hot Breakfast", "Salad Bar", "Desserts"]
+    },
+    "Café": {
+      "count": 1,
+      "restaurants": ["Business School Café", "Chemistry Café", "College Café", "Huxley Café", "Library Café", "Lumen Café", "Royal School of Mines Café", "The Bakery (Starbucks)", "The Loud Bird", "The Pantry", "The Roastery"],
+      "categories": ["Hot Drinks", "Hot Coffee", "Cold Drinks", "Soft Drinks", "Breakfast", "Pastries", "Hot Food", "Breakfast Components", "Toppings", "Baked Goods", "Cookies", "Fruit Tea", "Bubble Tea", "Nuts", "Energy Bars", "Lunch", "Salads", "Bottled Drinks", "Fresh Fruit", "Hot Tea", "Specialty Coffee", "Cold Coffee", "Drink Syrups", "Specialty Drinks", "Iced Drinks", "Muffins", "Protein Boxes", "Treats", "Cakes", "Yogurt", "Dairy", "Fruit Juices", "Brownies", "Convenience Food"]
+    },
+    "Chinese": {
+      "count": 1,
+      "restaurants": ["Hǎo Chí"],
+      "categories": ["Appetizers", "Noodles", "Rice", "Soups"]
+    },
+    "Indian": {
+      "count": 1,
+      "restaurants": [],
+      "categories": ["Main Dishes"]
+    },
+    "International": {
+      "count": 1,
+      "restaurants": ["Eastside Restaurant and Bar", "Feast", "Queen's Tower Rooms", "RCM Restaurant", "SCR Restaurant", "SPAR Convenience Store"],
+      "categories": ["Small Dishes", "Main Dishes", "Calzones", "sharing_platters", "Ready Meals", "sides", "salads", "mains", "burgers", "Energy Drinks", "Instant Food", "Japanese Drinks", "desserts", "Legumes", "Cooking Essentials", "sandwiches", "Wings", "snacks", "Tinned Food", "Water", "Sports Drinks", "Bakery", "Korean Drinks", "Pantry Essentials", "Dairy", "Asian Drinks"]
+    },
+    "Italian": {
+      "count": 1,
+      "restaurants": ["La Cantina"],
+      "categories": ["Pizza", "Pasta", "Lunch Sets", "Paninis", "Calzones", "Ready Meals"]
+    },
+    "Japanese": {
+      "count": 1,
+      "restaurants": [],
+      "categories": ["Extras", "Katsu Sets", "Japanese Sweets", "Japanese Drinks"]
+    },
+    "Mexican": {
+      "count": 1,
+      "restaurants": [],
+      "categories": ["Burritos", "Bowls"]
+    }
+  },
+  "categories": {
+    "Pizza": {
+      "count": 5,
+      "cuisine": "Italian",
+      "restaurants": ["La Cantina"],
+      "food_types": ["hot_dish", "savory"]
+    },
+    "Burgers": {
+      "count": 3,
+      "cuisine": "American",
+      "restaurants": [],
+      "food_types": ["hot_dish", "savory"]
+    },
+    "Pasta": {
+      "count": 7,
+      "cuisine": "International",
+      "restaurants": ["La Cantina"],
+      "food_types": ["hot_dish", "savory"]
+    },
+    "Sushi": {
+      "count": 6,
+      "cuisine": "International",
+      "restaurants": [],
+      "food_types": ["cold_dish", "savory"]
+    },
+    "Beverages": {
+      "count": 55,
+      "cuisine": "Café",
+      "restaurants": ["Business School Café", "Chemistry Café", "College Café", "Huxley Café", "Library Café", "Lumen Café", "Royal School of Mines Café", "The Bakery (Starbucks)", "The Loud Bird", "The Pantry", "The Roastery"],
+      "food_types": ["beverage"]
+    },
+    "Snacks": {
+      "count": 23,
+      "cuisine": "British",
+      "restaurants": [],
+      "food_types": ["snack", "savory"]
+    },
+    "Sides": {
+      "count": 22,
+      "cuisine": "American",
+      "restaurants": [],
+      "food_types": ["savory", "staple"]
+    },
+    "Mains": {
+      "count": 20,
+      "cuisine": "British",
+      "restaurants": [],
+      "food_types": ["hot_dish", "savory"]
+    },
+    "Sandwiches": {
+      "count": 19,
+      "cuisine": "British",
+      "restaurants": [],
+      "food_types": ["savory", "staple"]
+    },
+    "Breakfast": {
+      "count": 18,
+      "cuisine": "British",
+      "restaurants": [],
+      "food_types": ["hot_dish", "staple"]
+    },
+    "Pastries": {
+      "count": 17,
+      "cuisine": "British",
+      "restaurants": [],
+      "food_types": ["sweet", "snack"]
+    },
+    "Hot Food": {
+      "count": 15,
+      "cuisine": "British",
+      "restaurants": [],
+      "food_types": ["hot_dish", "savory"]
+    },
+    "Hot Drinks": {
+      "count": 14,
+      "cuisine": "Café",
+      "restaurants": [],
+      "food_types": ["beverage"]
+    },
+    "Hot Coffee": {
+      "count": 12,
+      "cuisine": "Café",
+      "restaurants": [],
+      "food_types": ["beverage"]
+    },
+    "Cold Drinks": {
+      "count": 9,
+      "cuisine": "Café",
+      "restaurants": [],
+      "food_types": ["beverage"]
+    },
+    "Soft Drinks": {
+      "count": 8,
+      "cuisine": "Café",
+      "restaurants": [],
+      "food_types": ["beverage"]
+    },
+    "Desserts": {
+      "count": 2,
+      "cuisine": "British",
+      "restaurants": [],
+      "food_types": ["dessert", "sweet"]
+    },
+    "Cakes": {
+      "count": 2,
+      "cuisine": "Café",
+      "restaurants": [],
+      "food_types": ["dessert", "sweet"]
+    },
+    "Cookies": {
+      "count": 7,
+      "cuisine": "Café",
+      "restaurants": [],
+      "food_types": ["dessert", "sweet", "snack"]
+    }
+  },
+  "restaurants": {
+    "La Cantina": {
+      "cuisine": "Italian",
+      "categories": ["Pizza", "Pasta", "Lunch Sets", "Paninis", "Calzones", "Ready Meals"],
+      "location": "Ground floor Eastside Halls (Prince's Gardens)",
+      "specialties": ["Italian food", "Pizza", "Pasta", "Lunch sets"]
+    },
+    "Business School Café": {
+      "cuisine": "Café",
+      "categories": ["Beverages", "Hot Drinks", "Hot Coffee", "Cold Drinks", "Breakfast", "Pastries", "Hot Food", "Breakfast Components", "Toppings", "Baked Goods", "Cookies", "Fruit Tea", "Bubble Tea", "Nuts", "Energy Bars", "Lunch", "Salads", "Bottled Drinks", "Fresh Fruit", "Hot Tea", "Specialty Coffee", "Cold Coffee", "Drink Syrups", "Specialty Drinks", "Iced Drinks", "Muffins", "Protein Boxes", "Treats", "Cakes", "Yogurt", "Dairy", "Fruit Juices", "Brownies", "Convenience Food"],
+      "location": "Ground floor Imperial Business School Building (Exhibition Road entrance)",
+      "specialties": ["Coffee", "Pastries", "Breakfast", "Beverages"]
+    },
+    "Hǎo Chí": {
+      "cuisine": "Chinese",
+      "categories": ["Appetizers", "Noodles", "Rice", "Soups"],
+      "location": "Ground floor Eastside Halls (Prince's Gardens)",
+      "specialties": ["Chinese food", "Noodles", "Rice dishes", "Soups"]
+    },
+    "Eastside Restaurant and Bar": {
+      "cuisine": "International",
+      "categories": ["Small Dishes", "Main Dishes", "Calzones", "sharing_platters", "Ready Meals", "sides", "salads", "mains", "burgers", "Energy Drinks", "Instant Food", "Japanese Drinks", "desserts", "Legumes", "Cooking Essentials", "sandwiches", "Wings", "snacks", "Tinned Food", "Water", "Sports Drinks", "Bakery", "Korean Drinks", "Pantry Essentials", "Dairy", "Asian Drinks"],
+      "location": "Ground floor Eastside Halls (Prince's Gardens)",
+      "specialties": ["International cuisine", "Sharing platters", "Main dishes"]
+    },
+    "Feast": {
+      "cuisine": "International",
+      "categories": ["Small Dishes", "Main Dishes", "Calzones", "sharing_platters", "Ready Meals", "sides", "salads", "mains", "burgers", "Energy Drinks", "Instant Food", "Japanese Drinks", "desserts", "Legumes", "Cooking Essentials", "sandwiches", "Wings", "snacks", "Tinned Food", "Water", "Sports Drinks", "Bakery", "Korean Drinks", "Pantry Essentials", "Dairy", "Asian Drinks"],
+      "location": "Ground floor Eastside Halls (Prince's Gardens)",
+      "specialties": ["International cuisine", "Diverse food options"]
+    }
+  },
+  "dietary_options": {
+    "vegetarian": {
+      "count": 1,
+      "categories": ["Pizza", "Pasta", "Salads", "Sandwiches", "Breakfast", "Pastries", "Cookies", "Cakes", "Desserts", "Fresh Fruit", "Yogurt", "Beverages", "Hot Drinks", "Cold Drinks"],
+      "description": "Food items that do not contain meat, poultry, or fish"
+    },
+    "vegan": {
+      "count": 1,
+      "categories": ["Salads", "Fresh Fruit", "Beverages", "Hot Drinks", "Cold Drinks"],
+      "description": "Food items that do not contain any animal products"
+    },
+    "gluten_free": {
+      "count": 1,
+      "categories": ["Salads", "Fresh Fruit", "Beverages", "Hot Drinks", "Cold Drinks"],
+      "description": "Food items that do not contain gluten"
+    },
+    "healthy": {
+      "count": 1,
+      "categories": ["Salads", "Fresh Fruit", "Yogurt", "Nuts", "Energy Bars"],
+      "description": "Food items considered healthy and nutritious"
+    },
+    "high_protein": {
+      "count": 1,
+      "categories": ["Protein Boxes", "Yogurt", "Nuts", "Energy Bars"],
+      "description": "Food items high in protein content"
+    },
+    "plant_based": {
+      "count": 1,
+      "categories": ["Salads", "Fresh Fruit", "Vegetables", "Legumes"],
+      "description": "Food items primarily made from plants"
+    },
+    "spicy": {
+      "count": 1,
+      "categories": ["Indian dishes", "Some Chinese dishes", "Some Mexican dishes"],
+      "description": "Food items with spicy flavors"
+    },
+    "caffeine": {
+      "count": 1,
+      "categories": ["Coffee", "Hot Coffee", "Cold Coffee", "Specialty Coffee", "Hot Drinks"],
+      "description": "Food items containing caffeine"
+    }
+  },
+  "food_types": {
+    "beverage": {
+      "count": 55,
+      "categories": ["Beverages", "Hot Drinks", "Hot Coffee", "Cold Drinks", "Soft Drinks", "Fruit Tea", "Bubble Tea", "Coffee", "Hot Tea", "Specialty Coffee", "Cold Coffee", "Specialty Drinks", "Iced Drinks", "Sports Drinks", "Water", "Fruit Juices"]
+    },
+    "hot_dish": {
+      "count": 32,
+      "categories": ["Pizza", "Pasta", "Hot Food", "Main Dishes", "Mains", "Breakfast", "Hot Breakfast", "Soups", "Hot Drinks", "Hot Coffee", "Hot Tea"]
+    },
+    "cold_dish": {
+      "count": 15,
+      "categories": ["Sushi", "Salads", "Cold Drinks", "Iced Drinks", "Fresh Fruit", "Yogurt"]
+    },
+    "savory": {
+      "count": 45,
+      "categories": ["Pizza", "Pasta", "Burgers", "Sandwiches", "Sides", "Mains", "Main Dishes", "Hot Food", "Breakfast", "Snacks", "Appetizers", "Soups", "Wings", "Burritos", "Bowls", "Paninis", "Calzones", "Jacket Potatoes", "Noodles", "Rice"]
+    },
+    "sweet": {
+      "count": 25,
+      "categories": ["Pastries", "Cookies", "Cakes", "Desserts", "Treats", "Muffins", "Brownies", "Energy Bars", "Fruit Tea", "Bubble Tea", "Japanese Sweets"]
+    },
+    "snack": {
+      "count": 30,
+      "categories": ["Snacks", "Cookies", "Energy Bars", "Nuts", "Treats", "Muffins", "Brownies", "Pastries"]
+    },
+    "dessert": {
+      "count": 12,
+      "categories": ["Desserts", "Cakes", "Cookies", "Treats", "Muffins", "Brownies", "Japanese Sweets"]
+    },
+    "staple": {
+      "count": 8,
+      "categories": ["Sides", "Sandwiches", "Breakfast", "Rice", "Noodles", "Legumes", "Grains"]
+    }
+  },
+  "serve_times": {
+    "all_day": {
+      "count": 1,
+      "categories": ["Beverages", "Snacks", "Cold Drinks", "Soft Drinks", "Cookies", "Energy Bars", "Nuts", "Fresh Fruit", "Yogurt", "Water"]
+    },
+    "lunch": {
+      "count": 1,
+      "categories": ["Main Dishes", "Mains", "Hot Food", "Sandwiches", "Pizza", "Pasta", "Burgers", "Sushi", "Soups", "Lunch Sets", "Paninis", "Calzones", "Burritos", "Bowls", "Salads"]
+    },
+    "morning": {
+      "count": 1,
+      "categories": ["Breakfast", "Hot Breakfast", "Breakfast Components", "Breakfast Sauces", "Pastries", "Muffins", "Hot Coffee", "Hot Drinks", "Fresh Fruit", "Yogurt"]
+    }
+  },
+  "locations": {
+    "Ground floor Eastside Halls (Prince's Gardens)": {
+      "restaurants": ["La Cantina", "Hǎo Chí", "Eastside Restaurant and Bar", "Feast"],
+      "cuisines": ["Italian", "Chinese", "International"],
+      "specialties": ["Pizza", "Chinese food", "International cuisine"]
+    },
+    "Ground floor Imperial Business School Building (Exhibition Road entrance)": {
+      "restaurants": ["Business School Café"],
+      "cuisines": ["Café"],
+      "specialties": ["Coffee", "Pastries", "Breakfast"]
+    },
+    "Ground floor Imperial College Library (Queen's Lawn)": {
+      "restaurants": ["Library Café"],
+      "cuisines": ["Café"],
+      "specialties": ["Coffee", "Beverages", "Snacks"]
+    },
+    "Level 2 Sherfield Building": {
+      "restaurants": ["SCR Restaurant"],
+      "cuisines": ["International"],
+      "specialties": ["International cuisine"]
+    },
+    "Sherfield Walkway": {
+      "restaurants": ["SPAR Convenience Store"],
+      "cuisines": ["International"],
+      "specialties": ["Convenience food", "Snacks"]
+    }
+  },
+  "search_insights": {
+    "pizza_info": {
+      "category": "Pizza",
+      "cuisine": "Italian", 
+      "restaurant": "La Cantina",
+      "location": "Ground floor Eastside Halls (Prince's Gardens)",
+      "count": 5,
+      "food_type": "hot_dish",
+      "serve_time": "lunch"
+    },
+    "common_searches": {
+      "coffee": "Available at all café locations, categories: Hot Coffee, Cold Coffee, Specialty Coffee",
+      "breakfast": "Available in morning, categories: Breakfast, Hot Breakfast, Breakfast Components",
+      "lunch": "Available at lunch time, categories: Main Dishes, Pizza, Pasta, Sandwiches, Burgers",
+      "vegetarian": "Available in categories: Pizza, Pasta, Salads, Sandwiches, Breakfast items",
+      "vegan": "Available in categories: Salads, Fresh Fruit, Beverages"
+    }
+  }
+}
