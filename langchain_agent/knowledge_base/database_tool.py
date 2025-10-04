@@ -82,6 +82,13 @@ class DatabaseKnowledgeBase:
             if pizza_info:
                 return f"Pizza Information: Category: {pizza_info.get('category')}, Cuisine: {pizza_info.get('cuisine')}, Restaurant: {pizza_info.get('restaurant')}, Location: {pizza_info.get('location')}, Count: {pizza_info.get('count')}, Food Type: {pizza_info.get('food_type')}, Serve Time: {pizza_info.get('serve_time')}"
         
+        # Check for bubble tea specifically
+        if "bubble tea" in query_lower:
+            beverage_info = self.knowledge.get("food_types", {}).get("beverage", {})
+            categories = beverage_info.get("categories", [])
+            if "Bubble Tea" in categories:
+                return f"Bubble Tea Information: Category: Bubble Tea, Food Type: beverage, Available in beverage categories. Use filter: {{'category': {{'$eq': 'Bubble Tea'}}, 'food_type': {{'$eq': 'beverage'}}}}"
+        
         # Check for cuisine types
         for cuisine, info in self.knowledge.get("cuisine_types", {}).items():
             if cuisine.lower() in query_lower:
@@ -137,6 +144,11 @@ class DatabaseKnowledgeBase:
             suggestions["cuisine_filters"].append("Italian")
             suggestions["restaurant_filters"].append("La Cantina")
             suggestions["food_type_filters"].append("hot_dish")
+        
+        # Bubble tea suggestions
+        if "bubble tea" in query_lower:
+            suggestions["category_filters"].append("Bubble Tea")
+            suggestions["food_type_filters"].append("beverage")
         
         # Italian food suggestions
         if "italian" in query_lower:
