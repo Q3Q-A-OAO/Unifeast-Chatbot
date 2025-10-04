@@ -21,6 +21,10 @@ openai>=1.50.0
 pinecone>=3.0.0
 langchain-pinecone>=0.1.0
 
+# Chroma Vector Database for Knowledge Base
+chromadb>=0.4.0
+langchain-chroma>=0.1.0
+
 # Database Connections
 psycopg2-binary>=2.9.0
 awswrangler[postgres]>=3.0.0
