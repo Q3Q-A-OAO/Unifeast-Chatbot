@@ -175,9 +175,9 @@ class MCPToolsTester:
             agent_executor = AgentExecutor(
                 agent=agent, 
                 tools=tools, 
-                verbose=False,  # Reduce verbose logging to prevent rate limits
-                max_iterations=8,  # Reduce iteration limit to prevent loops
-                max_execution_time=20,  # Reduce timeout to prevent hanging
+                verbose=True,  # Enable verbose logging for debugging
+                max_iterations=5,  # Reduce iteration limit to prevent loops
+                max_execution_time=15,  # Reduce timeout to prevent hanging
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
                 early_stopping_method="force"  # Force stop on iteration limit
@@ -300,9 +300,9 @@ class MCPToolsTester:
             agent_executor = AgentExecutor(
                 agent=agent, 
                 tools=tools, 
-                verbose=False,  # Reduce verbose logging to prevent rate limits
-                max_iterations=8,  # Reduce iteration limit to prevent loops
-                max_execution_time=20,  # Reduce timeout to prevent hanging
+                verbose=True,  # Enable verbose logging for debugging
+                max_iterations=5,  # Reduce iteration limit to prevent loops
+                max_execution_time=15,  # Reduce timeout to prevent hanging
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
                 early_stopping_method="force"  # Force stop on iteration limit
@@ -318,7 +318,15 @@ class MCPToolsTester:
             }
             
             # Get response from agent
+            print(f"🤖 INVOKING AGENT with input: {agent_input}")
             result = await agent_executor.ainvoke(agent_input)
+            print(f"🤖 AGENT RESULT: {result}")
+            
+            # Check for intermediate steps to debug loops
+            if 'intermediate_steps' in result:
+                print(f"🔄 INTERMEDIATE STEPS COUNT: {len(result['intermediate_steps'])}")
+                for i, step in enumerate(result['intermediate_steps']):
+                    print(f"🔄 STEP {i}: {step}")
             
             # Save conversation to memory
             if self.current_memory:
