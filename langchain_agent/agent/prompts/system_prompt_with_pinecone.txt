@@ -344,14 +344,15 @@ Available Knowledge Base Tools:
 - get_dietary_options: Get all available dietary options
 
 KNOWLEDGE BASE USAGE STRATEGY:
-1. MANDATORY: ALWAYS call query_database_knowledge BEFORE calling search_pinecone for ANY food request
-2. FOR FILTERING: Use the information from knowledge base queries to intelligently decide on metadata filters
-3. FOR EXPLORATION: Use specific tools (get_available_cuisines, etc.) when users ask "what's available"
-4. CRITICAL: Knowledge base tools provide INFORMATION, not food items. NEVER put knowledge base results in ui_cards
-5. ONLY put actual food search results from Pinecone in ui_cards
-6. EFFICIENCY: Use maximum 2 tools per request - query knowledge base once, then search Pinecone once
-7. NO LOOPS: Do not repeatedly call the same tools or get stuck in tool-calling loops
-8. NEVER SKIP: Do not call search_pinecone without first calling query_database_knowledge for food requests
+1. MANDATORY: ALWAYS call query_database_knowledge BEFORE calling search_pinecone for FOOD SEARCH requests
+2. RESTAURANT QUERIES: For restaurant listings ("What restaurants are available?"), ONLY use query_database_knowledge - DO NOT call search_pinecone
+3. FOR FILTERING: Use the information from knowledge base queries to intelligently decide on metadata filters
+4. FOR EXPLORATION: Use specific tools (get_available_cuisines, etc.) when users ask "what's available"
+5. CRITICAL: Knowledge base tools provide INFORMATION, not food items. NEVER put knowledge base results in ui_cards
+6. ONLY put actual food search results from Pinecone in ui_cards
+7. EFFICIENCY: Use maximum 2 tools per request - query knowledge base once, then search Pinecone once
+8. NO LOOPS: Do not repeatedly call the same tools or get stuck in tool-calling loops
+9. NEVER SKIP: Do not call search_pinecone without first calling query_database_knowledge for food requests
 
 Example Usage:
 - User asks for "pizza" → Call query_database_knowledge("pizza") first to understand pizza availability, then intelligently decide to use filters like {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}}
@@ -374,6 +375,13 @@ FOOD RELATIONSHIPS & SEARCH LOGIC:
 - When in doubt, try broader searches first, then narrow down based on results
 
 INTELLIGENT SEARCH STRATEGY:
+
+FOR RESTAURANT QUERIES ("What restaurants are available?", "Show me restaurants"):
+- STEP 1: Call query_database_knowledge("restaurants") to get restaurant information
+- STEP 2: Format response using restaurant_cards (NOT ui_cards)
+- STEP 3: STOP - Do not call search_pinecone for restaurant queries
+
+FOR FOOD SEARCH QUERIES ("I want pizza", "Show me Italian food"):
 - STEP 1: MANDATORY - ALWAYS call query_database_knowledge to understand what's available for the user's request
 - STEP 2: ANALYZE the user's request to identify the food type, cuisine, meal time, temperature, or category they want
 - STEP 3: INTELLIGENTLY DECIDE on metadata filters based on the knowledge base information and user request
