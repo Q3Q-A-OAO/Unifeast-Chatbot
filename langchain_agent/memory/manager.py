@@ -13,7 +13,7 @@ from typing import Dict, Any, List
 
 # LangChain Memory components
 from langchain.memory import ConversationBufferMemory
-from langchain.memory.chat_message_histories import SQLChatMessageHistory
+from langchain_community.chat_message_histories import SQLChatMessageHistory
 
 # Local configuration
 from config import settings

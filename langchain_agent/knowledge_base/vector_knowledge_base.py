@@ -21,6 +21,7 @@ from langchain_core.documents import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores.utils import filter_complex_metadata
 from langchain.chains import RetrievalQA
 from langchain_openai import ChatOpenAI
 from config import settings
@@ -51,8 +52,7 @@ class DatabaseKnowledgeBase:
         
         # Chroma settings following the article
         self.chroma_settings = {
-            'persist_directory': './knowledge_base_db',
-            'anonymized_telemetry': False
+            'persist_directory': './knowledge_base_db'
         }
         
         # Initialize vector store and QA chain
@@ -219,29 +219,32 @@ class DatabaseKnowledgeBase:
         Following the Medium article Chroma setup.
         """
         try:
+            # Filter complex metadata (convert lists to strings)
+            filtered_documents = filter_complex_metadata(documents)
+            
             self.vector_store = Chroma.from_documents(
-                documents=documents,
+                documents=filtered_documents,
                 embedding=self.embeddings,
-                persist_directory=self.chroma_settings['persist_directory'],
-                anonymized_telemetry=self.chroma_settings['anonymized_telemetry']
+                persist_directory=self.chroma_settings['persist_directory']
             )
             
             # Persist the database
             self.vector_store.persist()
-            print(f"✅ Created Chroma vector store with {len(documents)} documents")
+            print(f"✅ Created Chroma vector store with {len(filtered_documents)} documents")
             
         except Exception as e:
             print(f"❌ Error creating vector store: {e}")
             # Fallback to in-memory storage
+            filtered_documents = filter_complex_metadata(documents)
             self.vector_store = Chroma.from_documents(
-                documents=documents,
+                documents=filtered_documents,
                 embedding=self.embeddings
             )
             print("✅ Created in-memory vector store as fallback")
     
     def _create_qa_chain(self):
         """
-        Create RetrievalQA chain following the Medium article approach.
+        Create RetrievalQA chain following the Medium article approach： https://cismography.medium.com/building-a-knowledge-base-for-custom-llms-using-langchain-chroma-and-gpt4all-950906ae496d
         """
         if not self.vector_store:
             print("❌ No vector store available for QA chain")
