@@ -297,19 +297,28 @@ class DatabaseKnowledgeBase:
         Query the knowledge base using RetrievalQA chain.
         Following the Medium article approach.
         """
+        print(f"🔍 KNOWLEDGE BASE QUERY: {query}")
+        
         if not self.qa_chain:
+            print("❌ Knowledge base not available")
             return "Knowledge base not available. Please rebuild the knowledge base."
         
         try:
+            print(f"📊 Vector store count: {self.vector_store._collection.count()}")
             result = self.qa_chain({"query": query})
             answer = result["result"]
             source_docs = result["source_documents"]
+            
+            print(f"✅ Knowledge base result length: {len(answer)} chars")
+            print(f"📝 Result preview: {answer[:200]}...")
+            print(f"📚 Found {len(source_docs)} source documents")
             
             # Add source information
             if source_docs:
                 sources = []
                 for doc in source_docs[:3]:  # Limit to top 3 sources
                     metadata = doc.metadata
+                    print(f"📄 Source doc metadata: {metadata}")
                     if metadata.get("type") == "cuisine":
                         sources.append(f"Cuisine: {metadata.get('name')}")
                     elif metadata.get("type") == "category":
@@ -321,10 +330,14 @@ class DatabaseKnowledgeBase:
                 
                 if sources:
                     answer += f"\n\nBased on: {', '.join(sources)}"
+                    print(f"🏷️ Added sources: {sources}")
             
             return answer
             
         except Exception as e:
+            print(f"❌ Knowledge base error: {str(e)}")
+            import traceback
+            print(f"📋 Traceback: {traceback.format_exc()}")
             return f"Error querying knowledge base: {str(e)}"
 
 # Initialize the global knowledge base instance

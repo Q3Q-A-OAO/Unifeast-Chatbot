@@ -13,6 +13,15 @@ import sys
 from typing import Dict, Any, Optional
 from datetime import datetime
 
+# Configure structured logging to reduce volume
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Set environment variable to reduce Railway log volume
+os.environ["PYTHONUNBUFFERED"] = "0"
+
 # Add the langchain_agent directory to the path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'langchain_agent'))
 
@@ -244,15 +253,21 @@ async def health_check():
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """Main chat endpoint"""
+    print(f"🚀 CHAT REQUEST: {request.message}")
+    
     # Use provided user_id or cognito_id or default
     user_id = request.user_id or request.cognito_id or settings.DEFAULT_USER_ID
     session_id = request.session_id or f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
+    print(f"👤 User: {user_id}, Session: {session_id}")
+    
     # Log user profile information for debugging
     if request.user_profile:
         logger.info(f"User profile received: {request.user_profile.user_identity}, Budget: {request.user_profile.budget}, Dietary: {request.user_profile.dietary_preferences}")
+        print(f"👤 User profile: {request.user_profile.user_identity}, Budget: {request.user_profile.budget}")
     else:
         logger.info(f"No user profile provided, using default settings")
+        print(f"👤 No user profile provided")
     
     try:
         if not chatbot_instance:
@@ -294,6 +309,8 @@ async def chat(request: ChatRequest):
 
 async def process_message(message: str, user_id: str, session_id: str, user_profile: Optional[UserProfile] = None) -> dict:
     """Process a chat message using the existing MCPToolsTester agent"""
+    print(f"🤖 PROCESSING MESSAGE: {message}")
+    
     try:
         # Enhance message with user profile context if available
         enhanced_message = message
@@ -309,9 +326,13 @@ User Profile Context:
 User Query: {message}
 """
             enhanced_message = profile_context
+            print(f"👤 Enhanced message with profile context")
         
+        print(f"🤖 Calling agent with message length: {len(enhanced_message)}")
         # Use the existing agent's get_chat_response method
         response = await chatbot_instance.get_chat_response(enhanced_message, user_id, session_id)
+        print(f"✅ Agent response received, length: {len(response)}")
+        print(f"📝 Response preview: {response[:300]}...")
         
         # Try to parse as JSON first (new structured format)
         try:

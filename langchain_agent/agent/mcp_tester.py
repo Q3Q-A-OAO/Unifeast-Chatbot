@@ -175,11 +175,12 @@ class MCPToolsTester:
             agent_executor = AgentExecutor(
                 agent=agent, 
                 tools=tools, 
-                verbose=True,
-                max_iterations=15,  # Increase iteration limit
-                max_execution_time=30,  # 30 second timeout
+                verbose=False,  # Reduce verbose logging to prevent rate limits
+                max_iterations=8,  # Reduce iteration limit to prevent loops
+                max_execution_time=20,  # Reduce timeout to prevent hanging
                 return_intermediate_steps=True,
-                handle_parsing_errors=True
+                handle_parsing_errors=True,
+                early_stopping_method="force"  # Force stop on iteration limit
             )
             
             # Get user ID for this session
@@ -299,11 +300,12 @@ class MCPToolsTester:
             agent_executor = AgentExecutor(
                 agent=agent, 
                 tools=tools, 
-                verbose=True,
-                max_iterations=15,  # Increase iteration limit
-                max_execution_time=30,  # 30 second timeout
+                verbose=False,  # Reduce verbose logging to prevent rate limits
+                max_iterations=8,  # Reduce iteration limit to prevent loops
+                max_execution_time=20,  # Reduce timeout to prevent hanging
                 return_intermediate_steps=True,
-                handle_parsing_errors=True
+                handle_parsing_errors=True,
+                early_stopping_method="force"  # Force stop on iteration limit
             )
             
             # Get memory context
