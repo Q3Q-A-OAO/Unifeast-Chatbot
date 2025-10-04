@@ -19,6 +19,7 @@ openai>=1.50.0
 
 # Pinecone Vector Database
 pinecone>=3.0.0
+langchain-pinecone>=0.1.0
 
 # Database Connections
 psycopg2-binary>=2.9.0

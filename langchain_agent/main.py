@@ -13,7 +13,7 @@ import logging
 from memory import MemoryManager
 from agent import MCPToolsTester, search_pinecone
 from config import settings
-from knowledge_base.database_tool import (
+from knowledge_base.vector_knowledge_base import (
     query_database_knowledge,
     get_available_cuisines,
     get_available_categories,
