@@ -325,6 +325,44 @@ FILTERING LOGIC:
 4. Always maintain safety filters (allergies, health requirements)
 5. Use user_identity (student/staff) for correct pricing display
 
+DATABASE KNOWLEDGE BASE:
+Available Categories: Small Dishes, Extras, Main Dishes, Calzones, Burritos, Bowls, Wings, Pasta
+Available Cuisine Types: International, Japanese, Mexican, Convenience Store  
+Available Food Types: savory, staple
+Available Dietary Preferences: vegan, gluten_free
+Available Locations: Level 2 Sherfield Building, Sherfield Walkway
+
+FOOD RELATIONSHIPS & SEARCH LOGIC:
+- Understand that similar foods may be categorized differently (e.g., pizza-style items might be in "Calzones" category)
+- Use your knowledge of cuisines to map user requests to appropriate categories and cuisine types
+- Consider that restaurant names might contain cuisine hints (e.g., "Pizza Pi" restaurant serves pizza-style foods)
+- Apply logical reasoning: if user wants "Viennese food", think about what categories or cuisines that might map to
+- Use both semantic search (for natural language understanding) and metadata filtering (for precise results)
+- When in doubt, try broader searches first, then narrow down based on results
+
+INTELLIGENT SEARCH STRATEGY:
+- ANALYZE the user's request to identify the food type, cuisine, or category they want
+- COMBINE semantic search with metadata filtering for optimal results
+- Use your knowledge of food relationships to map user requests to appropriate categories
+- Apply metadata filters based on the identified food characteristics:
+  * Category filters: {{"category": {{"$eq": "CategoryName"}}}} for specific food categories
+  * Cuisine filters: {{"cuisine_type": {{"$eq": "CuisineType"}}}} for specific cuisines
+  * Multiple categories: {{"category": {{"$in": ["Category1", "Category2"]}}}} for related food types
+- Always consider synonyms and related foods (e.g., pizza-related items might be in "Calzones" category)
+- Use semantic search for the query text and metadata filters to narrow down results
+
+FILTERING CAPABILITIES:
+Available Pinecone Filter Operators:
+- $eq: exact match (e.g., "cuisine_type": {{"$eq": "Italian"}})
+- $in: match any value in array (e.g., "category": {{"$in": ["Main Dishes", "Small Dishes"]}})
+- $ne: not equal (e.g., "cuisine_type": {{"$ne": "Mexican"}})
+- $nin: not in array (e.g., "category": {{"$nin": ["Wings", "Calzones"]}})
+- $gt: greater than (e.g., "student_price": {{"$gt": 5.0}})
+- $lt: less than (e.g., "student_price": {{"$lt": 10.0}})
+- $gte: greater than or equal (e.g., "student_price": {{"$gte": 3.0}})
+- $lte: less than or equal (e.g., "student_price": {{"$lte": 8.0}})
+- $exists: field exists (e.g., "available": {{"$exists": true}})
+
 EXAMPLE FILTERING PROCESS:
 User query: "Find me lunch, budget doesn't matter today"
 User profile: {{dietary_preferences: "vegetarian", budget: 10.0, peanuts_allergy: true}}
@@ -332,7 +370,7 @@ User profile: {{dietary_preferences: "vegetarian", budget: 10.0, peanuts_allergy
 Process:
 1. Detect override: "budget doesn't matter" → Remove budget filter
 2. Apply remaining filters: vegetarian + no peanuts
-3. Search Pinecone: query="lunch", filters={{dietary_preferences: "vegetarian", peanuts_allergy: false}}
+3. Search Pinecone: query="lunch", filters={{dietary_preferences: {{"$eq": "vegetarian"}}, peanuts_allergy: false}}
 4. Return: Vegetarian lunch options without budget restrictions
 
 RESPONSE FORMAT REQUIREMENTS:
