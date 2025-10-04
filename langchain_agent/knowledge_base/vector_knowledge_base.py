@@ -204,81 +204,64 @@ class VectorKnowledgeBase:
     
     def query_knowledge_base(self, query: str, max_results: int = 5) -> str:
         """
-        Query the knowledge base using semantic search on the actual food items
-        and return relevant information about categories, cuisines, etc.
+        Query the knowledge base using semantic search and return relevant information
+        about categories, cuisines, restaurants, and dietary options.
         """
         try:
             query_lower = query.lower()
             
-            # First, search the actual food items to see what's available
-            retriever = self.vector_store.as_retriever(
-                search_kwargs={"k": max_results}
-            )
+            # Search the knowledge base data for relevant information
+            relevant_info = []
             
-            # Get relevant food items from Pinecone
-            docs = retriever.get_relevant_documents(query)
+            # Check cuisine types
+            for cuisine, info in self.knowledge_data.get("cuisine_types", {}).items():
+                categories = info.get("categories", [])
+                if any(query_lower in cat.lower() for cat in categories):
+                    relevant_info.append(f"Cuisine '{cuisine}' offers: {', '.join(categories)}")
             
-            if not docs:
-                return f"No food items found for query: {query}"
+            # Check categories
+            for category, info in self.knowledge_data.get("categories", {}).items():
+                if query_lower in category.lower():
+                    cuisine = info.get("cuisine", "Unknown")
+                    food_types = info.get("food_types", [])
+                    serve_times = info.get("serve_times", [])
+                    relevant_info.append(f"Category '{category}' (cuisine: {cuisine}, types: {', '.join(food_types)}, times: {', '.join(serve_times)})")
             
-            # Analyze the results to extract knowledge
-            categories = set()
-            cuisines = set()
-            restaurants = set()
-            food_types = set()
-            dietary_tags = set()
+            # Check restaurants
+            for restaurant, info in self.knowledge_data.get("restaurants", {}).items():
+                categories = info.get("categories", [])
+                if any(query_lower in cat.lower() for cat in categories):
+                    cuisine = info.get("cuisine", "Unknown")
+                    location = info.get("location", "Unknown")
+                    relevant_info.append(f"Restaurant '{restaurant}' ({cuisine}) at {location} offers: {', '.join(categories)}")
             
-            for doc in docs:
-                metadata = doc.metadata
-                if 'category' in metadata:
-                    categories.add(metadata['category'])
-                if 'cuisine_type' in metadata:
-                    cuisines.add(metadata['cuisine_type'])
-                if 'restaurant_name' in metadata:
-                    restaurants.add(metadata['restaurant_name'])
-                if 'food_type' in metadata:
-                    food_types.add(metadata['food_type'])
-                if 'dietary_tags' in metadata:
-                    for tag in metadata['dietary_tags']:
-                        dietary_tags.add(tag)
+            # Check food types
+            for food_type, info in self.knowledge_data.get("food_types", {}).items():
+                categories = info.get("categories", [])
+                if any(query_lower in cat.lower() for cat in categories):
+                    count = info.get("count", 0)
+                    relevant_info.append(f"Food type '{food_type}' includes {count} items in categories: {', '.join(categories)}")
             
-            # Build response based on query type
-            response_parts = []
+            # Check dietary options
+            for dietary, info in self.knowledge_data.get("dietary_options", {}).items():
+                categories = info.get("categories", [])
+                if any(query_lower in cat.lower() for cat in categories):
+                    description = info.get("description", "")
+                    relevant_info.append(f"Dietary option '{dietary}': {description}. Available in: {', '.join(categories)}")
             
-            if "bubble tea" in query_lower:
-                # Check if bubble tea category exists in results
-                bubble_tea_found = any("bubble tea" in cat.lower() for cat in categories)
-                if bubble_tea_found:
-                    response_parts.append("Bubble Tea is available in the database!")
-                    response_parts.append(f"Found in categories: {[cat for cat in categories if 'bubble tea' in cat.lower()]}")
-                else:
-                    response_parts.append("Bubble Tea category not found in current results")
-                    response_parts.append("Available beverage categories: " + ", ".join([cat for cat in categories if any(beverage in cat.lower() for beverage in ['drink', 'beverage', 'coffee', 'tea', 'juice', 'soda'])])[:10])
-            
-            elif any(word in query_lower for word in ["pizza", "italian"]):
-                pizza_found = any("pizza" in cat.lower() for cat in categories)
-                if pizza_found:
-                    response_parts.append("Pizza is available!")
-                    response_parts.append(f"Found in categories: {[cat for cat in categories if 'pizza' in cat.lower()]}")
-                    response_parts.append(f"Available at restaurants: {', '.join(list(restaurants)[:3])}")
-                else:
-                    response_parts.append("Pizza category not found in current results")
-            
+            if relevant_info:
+                response = f"Knowledge base search for '{query}' found:\n\n"
+                response += "\n".join(relevant_info[:10])  # Limit to top 10 results
+                
+                # Add general guidance
+                response += f"\n\nBased on this information, you can use appropriate filters like:"
+                response += f"\n- Category filter: {{'category': {{'$eq': 'CategoryName'}}}}"
+                response += f"\n- Cuisine filter: {{'cuisine_type': {{'$eq': 'CuisineType'}}}}"
+                response += f"\n- Food type filter: {{'food_type': {{'$eq': 'FoodType'}}}}"
+                
+                return response
             else:
-                # Generic response
-                response_parts.append(f"Found {len(docs)} relevant items for '{query}'")
-                if categories:
-                    response_parts.append(f"Categories: {', '.join(list(categories)[:5])}")
-                if cuisines:
-                    response_parts.append(f"Cuisines: {', '.join(list(cuisines)[:3])}")
-                if restaurants:
-                    response_parts.append(f"Restaurants: {', '.join(list(restaurants)[:3])}")
-            
-            # Add filter suggestions
-            if categories:
-                response_parts.append(f"\nSuggested filter: {{'category': {{'$in': {list(categories)[:3]}}}}}")
-            
-            return "\n".join(response_parts)
+                return f"No specific information found for '{query}' in the knowledge base. Try searching with broader terms or different keywords."
             
         except Exception as e:
             return f"Error querying knowledge base: {str(e)}"
