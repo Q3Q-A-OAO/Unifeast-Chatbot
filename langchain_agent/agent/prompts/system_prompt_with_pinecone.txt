@@ -431,6 +431,9 @@ CRITICAL: Return ONLY raw JSON - do not wrap in ```json``` or any markdown forma
 CRITICAL: All numeric fields (student_price, staff_price, score) MUST be valid numbers, not null!
 If you don't have actual price data, use reasonable default values like 8.50, 9.00, 0.85!
 If you don't have actual score data, use a reasonable similarity score like 0.85!
+CRITICAL: When you find food items, put them in ui_cards array, NOT in text_bubble!
+CRITICAL: text_bubble should only contain conversational text like "Here are some options for you:"
+CRITICAL: Each food item should be a separate object in the ui_cards array with all required fields!
 
 {{
   "text_bubble": "String - Your conversational response text",
@@ -468,17 +471,19 @@ If you don't have actual score data, use a reasonable similarity score like 0.85
   }}
 }}
 
-IMPORTANT FORMATTING RULES:
+CRITICAL FORMATTING RULES:
 1. ALWAYS respond with RAW JSON only - NO markdown code blocks, NO ```json``` wrappers
-2. Use the "text_bubble" field for conversational text
-3. Put each food recommendation in the "ui_cards" array
-4. Include ALL available metadata fields for each food item
-5. Use null for missing optional fields (like image_url)
-6. Convert all prices to numbers (not strings)
-7. Use proper boolean values (true/false, not "true"/"false")
-8. Include search confidence and metadata in search_metadata
-9. NEVER include any text outside the JSON structure
-10. DO NOT wrap your response in ```json``` or any other markdown formatting
+2. Use the "text_bubble" field ONLY for conversational text (like "Here are some options for you:")
+3. NEVER put food details in text_bubble - ALL food information goes in ui_cards array
+4. Put each food recommendation as a separate object in the "ui_cards" array
+5. Include ALL available metadata fields for each food item
+6. Use null for missing optional fields (like image_url)
+7. Convert all prices to numbers (not strings)
+8. Use proper boolean values (true/false, not "true"/"false")
+9. Include search confidence and metadata in search_metadata
+10. NEVER include any text outside the JSON structure
+11. DO NOT wrap your response in ```json``` or any other markdown formatting
+12. DO NOT format food items as bullet points or text descriptions
 
 EXAMPLE RESPONSE (return this exact format, no markdown):
 {{
