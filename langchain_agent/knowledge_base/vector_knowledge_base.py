@@ -30,10 +30,11 @@ class VectorKnowledgeBase:
         )
         
         # Initialize Pinecone vector store for knowledge base
+        # Use the same namespace as food items since we're searching the food database
         self.vector_store = PineconeVectorStore(
             index_name=settings.PINECONE_INDEX_NAME,
             embedding=self.embeddings,
-            namespace="knowledge_base"  # Separate namespace for knowledge base
+            namespace=settings.PINECONE_NAMESPACE  # Use same namespace as food items
         )
         
         self.llm = ChatOpenAI(
@@ -46,24 +47,16 @@ class VectorKnowledgeBase:
         self._initialize_knowledge_base()
     
     def _initialize_knowledge_base(self):
-        """Initialize the knowledge base with database knowledge data"""
+        """Initialize the knowledge base - just load the knowledge data for reference"""
         knowledge_file = os.path.join(os.path.dirname(__file__), "database_knowledge.json")
         
         if os.path.exists(knowledge_file):
             with open(knowledge_file, 'r') as f:
-                knowledge_data = json.load(f)
-            
-            # Convert knowledge data to documents
-            documents = self._create_documents_from_knowledge(knowledge_data)
-            
-            if documents:
-                # Add documents to vector store
-                self.vector_store.add_documents(documents)
-                print(f"✅ Initialized knowledge base with {len(documents)} documents")
-            else:
-                print("❌ No documents created from knowledge data")
+                self.knowledge_data = json.load(f)
+            print(f"✅ Loaded knowledge base data from {knowledge_file}")
         else:
             print(f"❌ Knowledge file not found: {knowledge_file}")
+            self.knowledge_data = {}
     
     def _create_documents_from_knowledge(self, knowledge_data: Dict[str, Any]) -> List[Document]:
         """Convert knowledge data into LangChain Document objects"""
@@ -211,64 +204,81 @@ class VectorKnowledgeBase:
     
     def query_knowledge_base(self, query: str, max_results: int = 5) -> str:
         """
-        Query the knowledge base using semantic search and return relevant information
+        Query the knowledge base using semantic search on the actual food items
+        and return relevant information about categories, cuisines, etc.
         """
         try:
-            # Create a retriever from the vector store
+            query_lower = query.lower()
+            
+            # First, search the actual food items to see what's available
             retriever = self.vector_store.as_retriever(
                 search_kwargs={"k": max_results}
             )
             
-            # Create a QA chain
-            qa_prompt = PromptTemplate(
-                template="""
-                You are a helpful assistant that answers questions about food and dining options.
-                Use the following pieces of context to answer the question. If you don't know the answer, 
-                just say that you don't know, don't try to make up an answer.
-                
-                Context: {context}
-                
-                Question: {question}
-                
-                Answer: Provide a clear, helpful answer based on the context provided.
-                """,
-                input_variables=["context", "question"]
-            )
+            # Get relevant food items from Pinecone
+            docs = retriever.get_relevant_documents(query)
             
-            qa_chain = RetrievalQA.from_chain_type(
-                llm=self.llm,
-                chain_type="stuff",
-                retriever=retriever,
-                chain_type_kwargs={"prompt": qa_prompt},
-                return_source_documents=True
-            )
+            if not docs:
+                return f"No food items found for query: {query}"
             
-            # Execute the query
-            result = qa_chain({"query": query})
+            # Analyze the results to extract knowledge
+            categories = set()
+            cuisines = set()
+            restaurants = set()
+            food_types = set()
+            dietary_tags = set()
             
-            # Format the response
-            answer = result["result"]
-            source_docs = result["source_documents"]
+            for doc in docs:
+                metadata = doc.metadata
+                if 'category' in metadata:
+                    categories.add(metadata['category'])
+                if 'cuisine_type' in metadata:
+                    cuisines.add(metadata['cuisine_type'])
+                if 'restaurant_name' in metadata:
+                    restaurants.add(metadata['restaurant_name'])
+                if 'food_type' in metadata:
+                    food_types.add(metadata['food_type'])
+                if 'dietary_tags' in metadata:
+                    for tag in metadata['dietary_tags']:
+                        dietary_tags.add(tag)
             
-            if source_docs:
-                sources = []
-                for doc in source_docs[:3]:  # Limit to top 3 sources
-                    metadata = doc.metadata
-                    if metadata.get("type") == "category":
-                        sources.append(f"Category: {metadata.get('name')} ({metadata.get('cuisine')} cuisine)")
-                    elif metadata.get("type") == "cuisine":
-                        sources.append(f"Cuisine: {metadata.get('name')}")
-                    elif metadata.get("type") == "restaurant":
-                        sources.append(f"Restaurant: {metadata.get('name')} ({metadata.get('location')})")
-                    elif metadata.get("type") == "food_type":
-                        sources.append(f"Food Type: {metadata.get('name')}")
-                    elif metadata.get("type") == "dietary":
-                        sources.append(f"Dietary: {metadata.get('name')}")
-                
-                if sources:
-                    answer += f"\n\nBased on: {', '.join(sources)}"
+            # Build response based on query type
+            response_parts = []
             
-            return answer
+            if "bubble tea" in query_lower:
+                # Check if bubble tea category exists in results
+                bubble_tea_found = any("bubble tea" in cat.lower() for cat in categories)
+                if bubble_tea_found:
+                    response_parts.append("Bubble Tea is available in the database!")
+                    response_parts.append(f"Found in categories: {[cat for cat in categories if 'bubble tea' in cat.lower()]}")
+                else:
+                    response_parts.append("Bubble Tea category not found in current results")
+                    response_parts.append("Available beverage categories: " + ", ".join([cat for cat in categories if any(beverage in cat.lower() for beverage in ['drink', 'beverage', 'coffee', 'tea', 'juice', 'soda'])])[:10])
+            
+            elif any(word in query_lower for word in ["pizza", "italian"]):
+                pizza_found = any("pizza" in cat.lower() for cat in categories)
+                if pizza_found:
+                    response_parts.append("Pizza is available!")
+                    response_parts.append(f"Found in categories: {[cat for cat in categories if 'pizza' in cat.lower()]}")
+                    response_parts.append(f"Available at restaurants: {', '.join(list(restaurants)[:3])}")
+                else:
+                    response_parts.append("Pizza category not found in current results")
+            
+            else:
+                # Generic response
+                response_parts.append(f"Found {len(docs)} relevant items for '{query}'")
+                if categories:
+                    response_parts.append(f"Categories: {', '.join(list(categories)[:5])}")
+                if cuisines:
+                    response_parts.append(f"Cuisines: {', '.join(list(cuisines)[:3])}")
+                if restaurants:
+                    response_parts.append(f"Restaurants: {', '.join(list(restaurants)[:3])}")
+            
+            # Add filter suggestions
+            if categories:
+                response_parts.append(f"\nSuggested filter: {{'category': {{'$in': {list(categories)[:3]}}}}}")
+            
+            return "\n".join(response_parts)
             
         except Exception as e:
             return f"Error querying knowledge base: {str(e)}"
