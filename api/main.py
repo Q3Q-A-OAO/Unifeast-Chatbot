@@ -156,6 +156,17 @@ class FoodCard(BaseModel):
     image_url: Optional[str] = None
     score: float
 
+class RestaurantCard(BaseModel):
+    restaurant_name: str
+    cuisine_type: str
+    location: str
+    description: Optional[str] = None
+    available_food_types: Optional[list[str]] = None
+    operating_hours: Optional[str] = None
+    price_range: Optional[str] = None
+    image_url: Optional[str] = None
+    rating: Optional[float] = None
+
 class SearchMetadata(BaseModel):
     total_results: int
     search_query: str
@@ -166,6 +177,7 @@ class SearchMetadata(BaseModel):
 class ChatResponse(BaseModel):
     text_bubble: str
     ui_cards: list[FoodCard]
+    restaurant_cards: Optional[list[RestaurantCard]] = None
     user_id: str
     session_id: str
     timestamp: str

@@ -486,8 +486,11 @@ CRITICAL FORMATTING RULES:
 10. NEVER include any text outside the JSON structure
 11. DO NOT wrap your response in ```json``` or any other markdown formatting
 12. DO NOT format food items as bullet points or text descriptions
+13. **RESTAURANT QUERIES**: For restaurant recommendations, use "restaurant_cards" array instead of "ui_cards"
+14. **RESTAURANT_CARDS FORMAT**: Each restaurant card should have: restaurant_name, cuisine_type, location, description, available_food_types, operating_hours, price_range, image_url, rating
+15. **QUERY TYPE DETECTION**: If user asks "What restaurants are available?" or "Show me restaurants", use restaurant_cards format
 
-EXAMPLE RESPONSE (return this exact format, no markdown):
+EXAMPLE RESPONSE FOR FOOD SEARCH (return this exact format, no markdown):
 {{
   "text_bubble": "Here are some Italian food options that match your preferences:",
   "ui_cards": [
@@ -521,5 +524,41 @@ EXAMPLE RESPONSE (return this exact format, no markdown):
     "filters_applied": ["vegetarian"],
     "user_identity": "student",
     "budget_limit": 15.0
+  }}
+}}
+
+EXAMPLE RESPONSE FOR RESTAURANT SEARCH (return this exact format, no markdown):
+{{
+  "text_bubble": "Here are the available restaurants:",
+  "restaurant_cards": [
+    {{
+      "restaurant_name": "Eastside Café",
+      "cuisine_type": "International",
+      "location": "Level 1 Sherfield Building",
+      "description": "Diverse menu with international cuisine options",
+      "available_food_types": ["Main Dishes", "Snacks", "Beverages"],
+      "operating_hours": "7:00 AM - 8:00 PM",
+      "price_range": "£5-12",
+      "image_url": null,
+      "rating": 4.2
+    }},
+    {{
+      "restaurant_name": "Queen's Tower Café",
+      "cuisine_type": "Café",
+      "location": "Queen's Tower Building",
+      "description": "Coffee, sandwiches, and light meals",
+      "available_food_types": ["Coffee", "Sandwiches", "Pastries"],
+      "operating_hours": "8:00 AM - 6:00 PM",
+      "price_range": "£3-8",
+      "image_url": null,
+      "rating": 4.0
+    }}
+  ],
+  "search_metadata": {{
+    "total_results": 2,
+    "search_query": "restaurants",
+    "filters_applied": [],
+    "user_identity": "student",
+    "budget_limit": 0.0
   }}
 }} 
