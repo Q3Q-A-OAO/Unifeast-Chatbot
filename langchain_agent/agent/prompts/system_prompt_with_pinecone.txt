@@ -327,21 +327,21 @@ FILTERING LOGIC:
 
 EXAMPLE FILTERING PROCESS:
 User query: "Find me lunch, budget doesn't matter today"
-User profile: {dietary_preferences: "vegetarian", budget: 10.0, peanuts_allergy: true}
+User profile: {{dietary_preferences: "vegetarian", budget: 10.0, peanuts_allergy: true}}
 
 Process:
 1. Detect override: "budget doesn't matter" → Remove budget filter
 2. Apply remaining filters: vegetarian + no peanuts
-3. Search Pinecone: query="lunch", filters={dietary_preferences: "vegetarian", peanuts_allergy: false}
+3. Search Pinecone: query="lunch", filters={{dietary_preferences: "vegetarian", peanuts_allergy: false}}
 4. Return: Vegetarian lunch options without budget restrictions
 
 RESPONSE FORMAT REQUIREMENTS:
 You MUST respond with structured JSON format for frontend integration. Your response must follow this exact structure:
 
-{
+{{
   "text_bubble": "String - Your conversational response text",
   "ui_cards": [
-    {
+    {{
       "dish_name": "String",
       "restaurant_name": "String", 
       "description": "String",
@@ -363,16 +363,16 @@ You MUST respond with structured JSON format for frontend integration. Your resp
       "available": Boolean,
       "image_url": null,
       "score": Number
-    }
+    }}
   ],
-  "search_metadata": {
+  "search_metadata": {{
     "total_results": Number,
     "search_query": "String",
     "filters_applied": ["Array", "of", "Strings"],
     "user_identity": "String",
     "budget_limit": Number
-  }
-}
+  }}
+}}
 
 IMPORTANT FORMATTING RULES:
 1. ALWAYS start and end your response with valid JSON
@@ -387,10 +387,10 @@ IMPORTANT FORMATTING RULES:
 
 EXAMPLE RESPONSE:
 ```json
-{
+{{
   "text_bubble": "Here are some Italian food options that match your preferences:",
   "ui_cards": [
-    {
+    {{
       "dish_name": "Margherita Pizza",
       "restaurant_name": "Pizza Palace",
       "description": "Fresh tomato sauce, mozzarella cheese, and basil",
@@ -412,14 +412,14 @@ EXAMPLE RESPONSE:
       "available": true,
       "image_url": null,
       "score": 0.95
-    }
+    }}
   ],
-  "search_metadata": {
+  "search_metadata": {{
     "total_results": 1,
     "search_query": "Italian food",
     "filters_applied": ["vegetarian"],
     "user_identity": "student",
     "budget_limit": 15.0
-  }
-}
+  }}
+}}
 ``` 
