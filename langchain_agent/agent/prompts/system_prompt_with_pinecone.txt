@@ -338,6 +338,8 @@ Process:
 RESPONSE FORMAT REQUIREMENTS:
 You MUST respond with structured JSON format for frontend integration. Your response must follow this exact structure:
 
+CRITICAL: Return ONLY raw JSON - do not wrap in ```json``` or any markdown formatting!
+
 {{
   "text_bubble": "String - Your conversational response text",
   "ui_cards": [
@@ -375,7 +377,7 @@ You MUST respond with structured JSON format for frontend integration. Your resp
 }}
 
 IMPORTANT FORMATTING RULES:
-1. ALWAYS start and end your response with valid JSON
+1. ALWAYS respond with RAW JSON only - NO markdown code blocks, NO ```json``` wrappers
 2. Use the "text_bubble" field for conversational text
 3. Put each food recommendation in the "ui_cards" array
 4. Include ALL available metadata fields for each food item
@@ -384,9 +386,9 @@ IMPORTANT FORMATTING RULES:
 7. Use proper boolean values (true/false, not "true"/"false")
 8. Include search confidence and metadata in search_metadata
 9. NEVER include any text outside the JSON structure
+10. DO NOT wrap your response in ```json``` or any other markdown formatting
 
-EXAMPLE RESPONSE:
-```json
+EXAMPLE RESPONSE (return this exact format, no markdown):
 {{
   "text_bubble": "Here are some Italian food options that match your preferences:",
   "ui_cards": [
@@ -421,5 +423,4 @@ EXAMPLE RESPONSE:
     "user_identity": "student",
     "budget_limit": 15.0
   }}
-}}
-``` 
+}} 
