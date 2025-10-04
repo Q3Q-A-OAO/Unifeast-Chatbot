@@ -172,7 +172,15 @@ class MCPToolsTester:
             
             # Create agent
             agent = create_openai_functions_agent(llm, tools, prompt)
-            agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+            agent_executor = AgentExecutor(
+                agent=agent, 
+                tools=tools, 
+                verbose=True,
+                max_iterations=15,  # Increase iteration limit
+                max_execution_time=30,  # 30 second timeout
+                return_intermediate_steps=True,
+                handle_parsing_errors=True
+            )
             
             # Get user ID for this session
             user_id = self.get_user_id_from_context()
@@ -288,7 +296,15 @@ class MCPToolsTester:
             
             # Create agent
             agent = create_openai_functions_agent(llm, tools, prompt)
-            agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+            agent_executor = AgentExecutor(
+                agent=agent, 
+                tools=tools, 
+                verbose=True,
+                max_iterations=15,  # Increase iteration limit
+                max_execution_time=30,  # 30 second timeout
+                return_intermediate_steps=True,
+                handle_parsing_errors=True
+            )
             
             # Get memory context
             memory_context = self.get_memory_context()

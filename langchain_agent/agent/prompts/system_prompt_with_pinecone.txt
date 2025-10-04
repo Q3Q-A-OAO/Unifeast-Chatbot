@@ -349,6 +349,8 @@ KNOWLEDGE BASE USAGE STRATEGY:
 3. FOR EXPLORATION: Use specific tools (get_available_cuisines, etc.) when users ask "what's available"
 4. CRITICAL: Knowledge base tools provide INFORMATION, not food items. NEVER put knowledge base results in ui_cards
 5. ONLY put actual food search results from Pinecone in ui_cards
+6. EFFICIENCY: Use maximum 2 tools per request - query knowledge base once, then search Pinecone once
+7. NO LOOPS: Do not repeatedly call the same tools or get stuck in tool-calling loops
 
 Example Usage:
 - User asks for "pizza" → Call query_database_knowledge("pizza") first to understand pizza availability, then intelligently decide to use filters like {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}}
@@ -377,6 +379,7 @@ INTELLIGENT SEARCH STRATEGY:
 - STEP 4: COMBINE semantic search with metadata filtering for optimal results
 - STEP 5: Apply metadata filters based on the identified food characteristics:
 - STEP 6: CRITICAL - Only return actual food items from Pinecone search in ui_cards, NOT knowledge base information
+- STEP 7: STOP after ONE search attempt - do not loop between tools
   * Category filters: {{"category": {{"$eq": "CategoryName"}}}} for specific food categories
   * Cuisine filters: {{"cuisine_type": {{"$eq": "CuisineType"}}}} for specific cuisines
   * Multiple categories: {{"category": {{"$in": ["Category1", "Category2"]}}}} for related food types
