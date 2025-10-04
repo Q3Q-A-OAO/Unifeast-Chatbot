@@ -39,6 +39,14 @@ def search_pinecone(
         Dictionary containing search results with food items and metadata
     """
     try:
+        # Enhanced debugging
+        print(f"\n🔍 PINECONE SEARCH DEBUG:")
+        print(f"   Query Text: '{query_text}'")
+        print(f"   Filter Dict: {filter_dict}")
+        print(f"   Top K: {top_k}")
+        print(f"   Index: {settings.PINECONE_INDEX_NAME}")
+        print(f"   Namespace: {settings.PINECONE_NAMESPACE}")
+        
         logger.info(f"Searching Pinecone for: {query_text}")
         logger.info(f"Using filter: {filter_dict}")
         
@@ -89,6 +97,19 @@ def search_pinecone(
             "total_results": len(food_items),
             "food_items": food_items
         }
+        
+        # Enhanced debugging for results
+        print(f"\n📊 PINECONE SEARCH RESULTS:")
+        print(f"   Total Results: {len(food_items)}")
+        if food_items:
+            print(f"   Top 3 Results:")
+            for i, item in enumerate(food_items[:3]):
+                print(f"     {i+1}. {item['metadata'].get('dish_name', 'Unknown')} - Score: {item['score']:.4f}")
+                print(f"        Category: {item['metadata'].get('category', 'N/A')}")
+                print(f"        Restaurant: {item['metadata'].get('restaurant_name', 'N/A')}")
+        else:
+            print(f"   No results found!")
+        print(f"\n")
         
         logger.info(f"Found {len(food_items)} food items")
         return result

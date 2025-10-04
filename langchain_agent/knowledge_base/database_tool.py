@@ -191,7 +191,12 @@ def query_database_knowledge(query: str) -> str:
     Returns:
         str: Information about the queried item including categories, cuisines, restaurants, etc.
     """
-    return _knowledge_base.search_food_info(query)
+    print(f"\n📚 KNOWLEDGE BASE QUERY DEBUG:")
+    print(f"   Query: '{query}'")
+    result = _knowledge_base.search_food_info(query)
+    print(f"   Result: {result[:200]}..." if len(result) > 200 else f"   Result: {result}")
+    print(f"\n")
+    return result
 
 
 
