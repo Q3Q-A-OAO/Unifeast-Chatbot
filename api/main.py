@@ -132,13 +132,13 @@ class FoodCard(BaseModel):
     food_type: str
     cuisine_type: str
     ingredients: list[str]
-    dietary_preferences: list[str]
+    dietary_tags: list[str]
     milk_allergy: bool
     eggs_allergy: bool
     peanuts_allergy: bool
     tree_nuts_allergy: bool
     shellfish_allergy: bool
-    other_allergies: list[str]
+    other_allergens: list[str]
     student_price: float
     staff_price: float
     serve_time: str
