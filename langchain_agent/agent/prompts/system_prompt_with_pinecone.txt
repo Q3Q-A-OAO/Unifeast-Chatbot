@@ -380,6 +380,9 @@ MANDATORY FILTERING EXAMPLES:
 - User asks for "Italian pizza" → MUST use filters: {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}} → Call search_pinecone(query_text="Italian pizza", filter_dict={{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}})
 - User asks for "hot drinks" → MUST use filters: {{"category": {{"$in": ["Hot Drinks", "Hot Coffee", "Hot Tea"]}}}} → Call search_pinecone(query_text="hot drinks", filter_dict={{"category": {{"$in": ["Hot Drinks", "Hot Coffee", "Hot Tea"]}}}})
 - User asks for "lunch" → MUST use filters: {{"serve_time": {{"$eq": "lunch"}}}} → Call search_pinecone(query_text="lunch", filter_dict={{"serve_time": {{"$eq": "lunch"}}}})
+- User asks for "snacks" or "snack" → MUST use filters: {{"food_type": {{"$eq": "snack"}}}} → Call search_pinecone(query_text="snacks", filter_dict={{"food_type": {{"$eq": "snack"}}}})
+- User asks for "quick snack" or "study snack" → MUST use filters: {{"food_type": {{"$eq": "snack"}}}} → Call search_pinecone(query_text="quick snack", filter_dict={{"food_type": {{"$eq": "snack"}}}})
+- User asks for "desserts" or "sweet" → MUST use filters: {{"food_type": {{"$eq": "dessert"}}}} → Call search_pinecone(query_text="desserts", filter_dict={{"food_type": {{"$eq": "dessert"}}}})
 
 FOOD RELATIONSHIPS & SEARCH LOGIC:
 - Understand that similar foods may be categorized differently across restaurants and databases
@@ -403,6 +406,7 @@ CRITICAL: ALWAYS APPLY METADATA FILTERS
 - NEVER call search_pinecone without filter_dict parameter
 - ALWAYS construct appropriate metadata filters based on user request
 - Use the database schema above to determine correct filter values
+- PRIORITIZE category and food_type filters over serve_time filters for better precision
 - This ensures precise results instead of irrelevant semantic matches
   * Category filters: {{"category": {{"$eq": "CategoryName"}}}} for specific food categories
   * Cuisine filters: {{"cuisine_type": {{"$eq": "CuisineType"}}}} for specific cuisines
