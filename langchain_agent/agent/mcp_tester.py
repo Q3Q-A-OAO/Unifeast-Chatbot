@@ -274,7 +274,9 @@ class MCPToolsTester:
                         get_available_restaurants,
                         get_dietary_options
                     )
+                    from agent.pinecone_search import search_pinecone
                     custom_tools = [
+                        search_pinecone,
                         query_database_knowledge,
                         get_available_cuisines,
                         get_available_categories,
