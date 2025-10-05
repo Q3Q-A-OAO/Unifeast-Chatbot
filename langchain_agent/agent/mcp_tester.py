@@ -266,11 +266,10 @@ class MCPToolsTester:
             if not self.mcp_client:
                 # RESTORED KNOWLEDGE BASE + SEARCH_PINECONE TOOLS
                 try:
-                    from knowledge_base.simple_knowledge_base import (
+                    from knowledge_base.simple_tools import (
                         query_database_knowledge,
                         get_available_cuisines,
                         get_available_categories,
-                        get_available_food_types,
                         get_available_restaurants,
                         get_dietary_options
                     )
@@ -280,7 +279,6 @@ class MCPToolsTester:
                         query_database_knowledge,
                         get_available_cuisines,
                         get_available_categories,
-                        get_available_food_types,
                         get_available_restaurants,
                         get_dietary_options
                     ]
