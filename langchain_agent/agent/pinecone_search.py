@@ -21,7 +21,7 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 
-@tool("search_pinecone")
+@tool
 def search_pinecone(
     query_text: str,
     filter_dict: Dict[str, Any] = None,
