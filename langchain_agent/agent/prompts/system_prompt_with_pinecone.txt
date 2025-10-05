@@ -333,36 +333,50 @@ FILTERING LOGIC:
 4. Always maintain safety filters (allergies, health requirements)
 5. Use user_identity (student/staff) for correct pricing display
 
-DATABASE KNOWLEDGE BASE:
-You have access to database knowledge tools that provide information about available food categories, cuisine types, restaurants, locations, and dietary options. Use these tools to understand what's available in the database before performing searches.
+DATABASE SCHEMA REFERENCE:
+Use this complete database schema to intelligently expand user queries and apply precise filters. This replaces the need for knowledge base tools.
 
-Available Knowledge Base Tools:
-- query_database_knowledge: Query for specific food information (e.g., "pizza", "Italian food", "coffee")
-- get_available_cuisines: Get all available cuisine types
-- get_available_categories: Get all available food categories  
-- get_available_restaurants: Get all available restaurants
-- get_dietary_options: Get all available dietary options
+AVAILABLE CUISINE TYPES:
+- American
+- British  
+- Café
+- Chinese
+- Indian
+- International
+- Italian
+- Japanese
+- Mexican
 
-KNOWLEDGE BASE USAGE STRATEGY:
-1. BEFORE SEARCHING: Use query_database_knowledge to understand what's available for the user's request
-2. FOR FILTERING: Use the information from knowledge base queries to intelligently decide on metadata filters
-3. FOR EXPLORATION: Use specific tools (get_available_cuisines, etc.) when users ask "what's available"
-4. CRITICAL: Knowledge base tools provide INFORMATION, not food items. NEVER put knowledge base results in ui_cards
-5. ONLY put actual food search results from Pinecone in ui_cards
-6. EFFICIENCY: Use maximum 2 tools per request - query knowledge base once, then search Pinecone once
-7. NO LOOPS: Do not repeatedly call the same tools or get stuck in tool-calling loops
+AVAILABLE CATEGORIES:
+- Appetizers, Asian Drinks, Baked Goods, Bakery, beverages, Beverages, Bottled Drinks, Bowls, Breakfast, Breakfast Components, Breakfast Sauces, Brownies, Bubble Tea, burgers, Burgers, Burritos, Cakes, Calzones, Coffee, Cold Coffee, Cold Drinks, Convenience Food, Cookies, Cooking Essentials, Dairy, desserts, Desserts, Drink Syrups, Energy Bars, Energy Drinks, Extras, Fresh Fruit, Fruit Juices, Fruit Tea, Grains, Grilled Chicken, Hot Breakfast, Hot Coffee, Hot Drinks, Hot Food, Hot Tea, Iced Drinks, Instant Food, Jacket Potatoes, Japanese Drinks, Japanese Sweets, Katsu Sets, Korean Drinks, Legumes, Lunch, Lunch Sets, Main Dishes, mains, Mains, Muffins, Noodles, Nuts, Paninis, Pantry Essentials, Pasta, Pastries, Pizza, Protein Boxes, Ready Meals, Rice, Salad Bar, salads, Salads, sandwiches, Sandwiches, sharing_platters, sides, Sides, Signature Sauces, Small Dishes, snacks, Snacks, Soft Drinks, Soups, Specialty Coffee, Specialty Drinks, Sports Drinks, Sushi, Tinned Food, Toppings, Treats, Water, Wings, Wraps, Yogurt
+
+AVAILABLE FOOD TYPES:
+- beverage, cold_dish, condiment, cooking, dessert, flavoring, hot_dish, savory, snack, staple, sweet, topping
+
+AVAILABLE SERVE TIMES:
+- all_day, lunch, morning
+
+AVAILABLE DIETARY TAGS:
+- caffeine, gluten_free, healthy, high_protein, plant_based, spicy, vegan, vegetarian
+
+AVAILABLE LOCATIONS:
+- Chemistry Building Common Room, Foyer area Electrical Engineering Building, Ground floor Eastside Halls (Prince's Gardens), Ground floor Imperial Business School Building (Exhibition Road entrance), Ground floor Imperial College Library (Queen's Lawn), Ground floor Linstead Hall (Prince's Gardens), Ground floor Sir Alexander Fleming Building, Huxley Building (180 Queen's Gate), Junior Common Room, Junior Common Room (Sherfield Building), Level 1 Sherfield Building, Level 2 Sherfield Building, Next to Alumni Visitor Centre (main entrance), Room 301 (3rd floor) Royal School of Mines Building, Royal College of Music (Prince Consort Road), Senior Common Room (Level 2 Sherfield Building), Sherfield Walkway
+
+AVAILABLE RESTAURANTS:
+- Business School Café, Chemistry Café, College Café, Eastside Restaurant and Bar, Feast, Hǎo Chí, Huxley Café, La Cantina, Library Café, Lumen Café, Queen's Tower Rooms, RCM Restaurant, Royal School of Mines Café, SCR Restaurant, SPAR Convenience Store, The Bakery (Starbucks), The Loud Bird, The Pantry, The Roastery
+
+INTELLIGENT QUERY EXPANSION STRATEGY:
+1. ANALYZE user request using the schema above
+2. EXPAND queries with related categories, cuisines, food types, etc.
+3. APPLY intelligent filters based on database knowledge
+4. Use semantic search + precise metadata filtering for best results
 
 Example Usage:
-- User asks for "pizza" → Call query_database_knowledge("pizza") first to understand pizza availability, then intelligently decide to use filters like {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "International"}}}}
-- User asks for "Italian food" → Call query_database_knowledge("Italian food") to see Italian options, then use {{"cuisine_type": {{"$eq": "Italian"}}}} filter
-- User asks for "coffee" → Call query_database_knowledge("coffee") to understand coffee availability, then use {{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}, "food_type": {{"$eq": "beverage"}}}}
-- User asks for "breakfast" → Call query_database_knowledge("breakfast") to see breakfast options, then use {{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}, "serve_time": {{"$eq": "morning"}}}}
-- User asks for "vegetarian food" → Call query_database_knowledge("vegetarian") to see vegetarian options, then use {{"dietary_tags": {{"$in": ["vegetarian"]}}}}
-- User asks for "Chinese food" → Call query_database_knowledge("Chinese food") to see Chinese options, then use {{"cuisine_type": {{"$eq": "Chinese"}}}}
-- User asks for "sushi" → Call query_database_knowledge("sushi") to see sushi options, then use {{"category": {{"$eq": "Sushi"}}, "food_type": {{"$eq": "cold_dish"}}}}
-- User asks for "lunch" → Call query_database_knowledge("lunch") to see lunch options, then use {{"serve_time": {{"$eq": "lunch"}}, "category": {{"$in": ["Main Dishes", "Pizza", "Pasta", "Sandwiches", "Burgers"]}}}}
-- User asks "what cuisines do you have?" → Call get_available_cuisines()
-- User asks "what restaurants serve pizza?" → Call query_database_knowledge("pizza restaurants")
+- User asks for "pizza" → Expand to category: "Pizza", cuisine_type: "International", food_type: "hot_dish", serve_time: "lunch" → Use filters: {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "International"}}}}
+- User asks for "coffee" → Expand to categories: ["Hot Coffee", "Cold Coffee", "Specialty Coffee"], food_type: "beverage" → Use filters: {{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}, "food_type": {{"$eq": "beverage"}}}}
+- User asks for "breakfast" → Expand to categories: ["Breakfast", "Hot Breakfast", "Breakfast Components"], serve_time: "morning" → Use filters: {{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}, "serve_time": {{"$eq": "morning"}}}}
+- User asks for "vegetarian food" → Expand to dietary_tags: ["vegetarian"], categories: ["Salads", "Vegetarian", "Pasta", "Pizza"] → Use filters: {{"dietary_tags": {{"$in": ["vegetarian"]}}}}
+- User asks for "bubble tea" → Expand to category: "Bubble Tea", cuisine_type: "Café", food_type: "beverage" → Use filters: {{"category": {{"$eq": "Bubble Tea"}}, "cuisine_type": {{"$eq": "Café"}}}}
 
 FOOD RELATIONSHIPS & SEARCH LOGIC:
 - Understand that similar foods may be categorized differently across restaurants and databases
@@ -373,13 +387,14 @@ FOOD RELATIONSHIPS & SEARCH LOGIC:
 - When in doubt, try broader searches first, then narrow down based on results
 
 INTELLIGENT SEARCH STRATEGY:
-- STEP 1: Use query_database_knowledge to understand what's available for the user's request
-- STEP 2: ANALYZE the user's request to identify the food type, cuisine, meal time, temperature, or category they want
-- STEP 3: INTELLIGENTLY DECIDE on metadata filters based on the knowledge base information and user request
-- STEP 4: COMBINE semantic search with metadata filtering for optimal results
-- STEP 5: Apply metadata filters based on the identified food characteristics:
-- STEP 6: CRITICAL - Only return actual food items from Pinecone search in ui_cards, NOT knowledge base information
-- STEP 7: STOP after ONE search attempt - do not loop between tools
+- STEP 1: ANALYZE the user's request using the database schema above
+- STEP 2: IDENTIFY the food type, cuisine, meal time, temperature, or category they want
+- STEP 3: EXPAND the query with related categories, cuisines, food types, etc. from the schema
+- STEP 4: INTELLIGENTLY DECIDE on metadata filters based on database schema knowledge
+- STEP 5: CALL search_pinecone with the expanded query and intelligent filters
+- STEP 6: ANALYZE results and provide helpful recommendations
+- STEP 7: CRITICAL - Only return actual food items from Pinecone search in ui_cards
+- STEP 8: STOP after ONE search attempt - do not loop between tools
   * Category filters: {{"category": {{"$eq": "CategoryName"}}}} for specific food categories
   * Cuisine filters: {{"cuisine_type": {{"$eq": "CuisineType"}}}} for specific cuisines
   * Multiple categories: {{"category": {{"$in": ["Category1", "Category2"]}}}} for related food types
