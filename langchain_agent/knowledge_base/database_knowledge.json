@@ -27,13 +27,13 @@
     },
     "International": {
       "count": 1,
-      "restaurants": ["Eastside Restaurant and Bar", "Feast", "Queen's Tower Rooms", "RCM Restaurant", "SCR Restaurant", "SPAR Convenience Store"],
-      "categories": ["Small Dishes", "Main Dishes", "Calzones", "sharing_platters", "Ready Meals", "sides", "salads", "mains", "burgers", "Energy Drinks", "Instant Food", "Japanese Drinks", "desserts", "Legumes", "Cooking Essentials", "sandwiches", "Wings", "snacks", "Tinned Food", "Water", "Sports Drinks", "Bakery", "Korean Drinks", "Pantry Essentials", "Dairy", "Asian Drinks"]
+      "restaurants": ["Eastside Restaurant and Bar", "Feast", "Queen's Tower Rooms", "RCM Restaurant", "SCR Restaurant", "SPAR Convenience Store", "Pizza Pi"],
+      "categories": ["Small Dishes", "Main Dishes", "Calzones", "sharing_platters", "Ready Meals", "sides", "salads", "mains", "burgers", "Energy Drinks", "Instant Food", "Japanese Drinks", "desserts", "Legumes", "Cooking Essentials", "sandwiches", "Wings", "snacks", "Tinned Food", "Water", "Sports Drinks", "Bakery", "Korean Drinks", "Pantry Essentials", "Dairy", "Asian Drinks", "Pizza"]
     },
     "Italian": {
       "count": 1,
       "restaurants": ["La Cantina"],
-      "categories": ["Pizza", "Pasta", "Lunch Sets", "Paninis", "Calzones", "Ready Meals"]
+      "categories": ["Pasta", "Lunch Sets", "Paninis", "Calzones", "Ready Meals"]
     },
     "Japanese": {
       "count": 1,
