@@ -49,8 +49,8 @@
   "categories": {
     "Pizza": {
       "count": 5,
-      "cuisine": "Italian",
-      "restaurants": ["La Cantina"],
+      "cuisine": "International",
+      "restaurants": ["Pizza Pi"],
       "food_types": ["hot_dish", "savory"]
     },
     "Burgers": {
@@ -377,15 +377,15 @@
       "restaurant_id": "pizza_pi_(neo_pizza_&_pasta)",
       "cuisine_type": "International",
       "location": null,
-      "description": "Classic Italian pizza",
+      "description": "Pizza and pasta restaurant",
       "opening_hours": null,
       "contact": null,
       "accessibility": null,
       "banner_url": null,
       "banner_position": "left center",
       "record_type": "margherita_pizza",
-      "notes": "Classic Italian pizza",
-      "specialties": ["Pizza", "Italian", "Margherita", "Pasta"]
+      "notes": "Pizza and pasta restaurant",
+      "specialties": ["Pizza", "Margherita", "Pasta"]
     },
     "Queen's Tower Rooms": {
       "restaurant_id": "queen's_tower_rooms",
@@ -634,8 +634,8 @@
   "search_insights": {
     "pizza_info": {
       "category": "Pizza",
-      "cuisine": "Italian", 
-      "restaurant": "La Cantina",
+      "cuisine": "International", 
+      "restaurant": "Pizza Pi",
       "location": "Ground floor Eastside Halls (Prince's Gardens)",
       "count": 5,
       "food_type": "hot_dish",
