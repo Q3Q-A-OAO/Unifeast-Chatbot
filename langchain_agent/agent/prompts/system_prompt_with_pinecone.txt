@@ -506,8 +506,26 @@ CRITICAL FORMATTING RULES:
 11. DO NOT wrap your response in ```json``` or any other markdown formatting
 12. DO NOT format food items as bullet points or text descriptions
 13. **RESTAURANT QUERIES**: For restaurant information from knowledge base, use text_bubble (knowledge base tools return text)
-14. **RESTAURANT_CARDS FORMAT**: Each restaurant card should have: restaurant_name, cuisine_type, location, description, available_food_types, operating_hours, price_range, image_url, rating
-15. **QUERY TYPE DETECTION**: If user asks "What restaurants are available?" or "Show me restaurants", use get_available_restaurants tool and return in text_bubble
+14. **REQUIRED FIELDS**: ALL responses must include: text_bubble, ui_cards (empty array), user_id, session_id, timestamp, search_metadata
+15. **RESTAURANT_CARDS FORMAT**: Each restaurant card should have: restaurant_name, cuisine_type, location, description, available_food_types, operating_hours, price_range, image_url, rating
+16. **QUERY TYPE DETECTION**: If user asks "What restaurants are available?" or "Show me restaurants", use get_available_restaurants tool and return in text_bubble
+
+EXAMPLE RESPONSE FOR KNOWLEDGE BASE QUERY (return this exact format, no markdown):
+{{
+  "text_bubble": "Here are the available restaurants: [restaurant information from knowledge base tool]",
+  "ui_cards": [],
+  "restaurant_cards": null,
+  "user_id": "test_user",
+  "session_id": "test_session", 
+  "timestamp": "2025-01-01T12:00:00.000000",
+  "search_metadata": {{
+    "total_results": 0,
+    "search_query": "restaurants",
+    "filters_applied": [],
+    "user_identity": "student",
+    "budget_limit": 0.0
+  }}
+}}
 
 EXAMPLE RESPONSE FOR FOOD SEARCH (return this exact format, no markdown):
 {{
