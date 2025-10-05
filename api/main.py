@@ -34,7 +34,7 @@ from contextlib import asynccontextmanager
 from agent.mcp_tester import MCPToolsTester
 from agent.pinecone_search import search_pinecone
 from config.settings import settings
-from knowledge_base.vector_knowledge_base import (
+from knowledge_base.simple_knowledge_base import (
     query_database_knowledge,
     get_available_cuisines,
     get_available_categories,
