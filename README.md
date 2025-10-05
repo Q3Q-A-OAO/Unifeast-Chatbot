@@ -51,3 +51,4 @@ mcp-chatbot/
 - Create MCP servers (Phase 2)
 - Create InlineAgent SDK (Phase 2)
 - Test integration (Phase 3) # Force redeploy - Sun Oct  5 05:39:49 BST 2025
+# Force complete Railway rebuild - Sun Oct  5 05:46:58 BST 2025
