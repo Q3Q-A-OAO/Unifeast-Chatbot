@@ -176,8 +176,8 @@ class MCPToolsTester:
                 agent=agent, 
                 tools=tools, 
                 verbose=True,  # Enable verbose logging for debugging
-                max_iterations=1,  # Force single tool call to prevent any loops
-                max_execution_time=15,  # Reduce timeout to prevent hanging
+                max_iterations=3,  # Allow reasonable number of iterations
+                max_execution_time=30,  # Allow more time for tool execution
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
                 early_stopping_method="force"  # Force stop on iteration limit
@@ -264,8 +264,8 @@ class MCPToolsTester:
             
             # Setup MCP servers if not already done
             if not self.mcp_client:
-                # NO TOOLS FOR TESTING
-                custom_tools = []  # TEMPORARILY DISABLED ALL TOOLS FOR TESTING
+                # RESTORED SEARCH_PINECONE TOOL
+                custom_tools = [search_pinecone] if 'search_pinecone' in globals() else []
                 await self.setup_mcp_servers(custom_tools)
             
             # Create agent using the same logic as start_conversation
@@ -302,8 +302,8 @@ class MCPToolsTester:
                 agent=agent, 
                 tools=tools, 
                 verbose=True,  # Enable verbose logging for debugging
-                max_iterations=1,  # Force single tool call to prevent any loops
-                max_execution_time=15,  # Reduce timeout to prevent hanging
+                max_iterations=3,  # Allow reasonable number of iterations
+                max_execution_time=30,  # Allow more time for tool execution
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
                 early_stopping_method="force"  # Force stop on iteration limit
