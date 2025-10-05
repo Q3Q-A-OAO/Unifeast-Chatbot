@@ -215,8 +215,12 @@ class SimpleKnowledgeBase:
     def get_available_restaurants(self) -> str:
         """Get all available restaurants."""
         try:
+            print("🔍 Getting available restaurants...")
             restaurants = self.knowledge_data.get("restaurants", {})
+            print(f"✅ Found {len(restaurants)} restaurants in knowledge base")
+            
             if not restaurants:
+                print("❌ No restaurants found in knowledge base")
                 return "No restaurants available."
             
             result = "**Available Restaurants:**\n"
@@ -225,8 +229,10 @@ class SimpleKnowledgeBase:
                 location = info.get("location", "Unknown")
                 result += f"- {restaurant} ({cuisine_type}) - {location}\n"
             
+            print(f"✅ Successfully formatted {len(restaurants)} restaurants")
             return result
         except Exception as e:
+            print(f"❌ Error getting restaurants: {e}")
             return f"Error getting restaurants: {str(e)}"
     
     @tool
