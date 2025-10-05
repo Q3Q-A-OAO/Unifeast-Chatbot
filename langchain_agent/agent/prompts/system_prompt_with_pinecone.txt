@@ -364,7 +364,7 @@ SEARCH STRATEGY (KNOWLEDGE BASE + SEARCH_PINECONE):
 Example Usage (KNOWLEDGE BASE + SEARCH_PINECONE):
 - User asks for "pizza" → 
   1. Call query_database_knowledge("pizza") to understand available pizza options
-  2. Call search_pinecone with filters like {{"category": {{"$eq": "Pizza"}}}} (NO cuisine_type filter)
+  2. Call search_pinecone with filters based on knowledge base results
 - User asks for "bubble tea" → 
   1. Call query_database_knowledge("bubble tea") to understand available beverage options
   2. Call search_pinecone with filters like {{"category": {{"$in": ["Bubble Tea", "Cold Drinks"]}}, "food_type": {{"$eq": "beverage"}}}}
