@@ -13,15 +13,15 @@ import logging
 from memory import MemoryManager
 from agent import MCPToolsTester, search_pinecone
 from config import settings
-# Import simple knowledge base tools (no vector store, no loops)
-from knowledge_base.simple_knowledge_base import (
-    query_database_knowledge,
-    get_available_cuisines,
-    get_available_categories,
-    get_available_food_types,
-    get_available_restaurants,
-    get_dietary_options
-)
+# TEMPORARILY DISABLED KNOWLEDGE BASE TOOLS - TESTING WITHOUT ANY KNOWLEDGE BASE
+# from knowledge_base.simple_knowledge_base import (
+#     query_database_knowledge,
+#     get_available_cuisines,
+#     get_available_categories,
+#     get_available_food_types,
+#     get_available_restaurants,
+#     get_dietary_options
+# )
 
 # Version information
 __version__ = "1.0.0"
@@ -59,15 +59,9 @@ async def main():
         # Initialize tester
         tester = MCPToolsTester()
         
-        # Setup MCP servers with custom tools - USING SIMPLE KNOWLEDGE BASE
+        # Setup MCP servers with custom tools - ONLY SEARCH_PINECONE (NO KNOWLEDGE BASE)
         custom_tools = [
-            search_pinecone,
-            query_database_knowledge,
-            get_available_cuisines,
-            get_available_categories,
-            get_available_food_types,
-            get_available_restaurants,
-            get_dietary_options
+            search_pinecone
         ]
         await tester.setup_mcp_servers(custom_tools)
         
