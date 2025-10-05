@@ -140,7 +140,6 @@ class SimpleKnowledgeBase:
         
         return "\n".join(results[:5])  # Limit to 5 results
     
-    @tool
     def query_database_knowledge(self, query: str) -> str:
         """
         Query the database knowledge base for information about food, restaurants, cuisines, etc.
@@ -160,7 +159,6 @@ class SimpleKnowledgeBase:
             print(f"❌ Error querying knowledge base: {e}")
             return f"Error querying knowledge base: {str(e)}"
     
-    @tool
     def get_available_cuisines(self) -> str:
         """Get all available cuisine types."""
         try:
@@ -177,7 +175,6 @@ class SimpleKnowledgeBase:
         except Exception as e:
             return f"Error getting cuisines: {str(e)}"
     
-    @tool
     def get_available_categories(self) -> str:
         """Get all available food categories."""
         try:
@@ -194,7 +191,6 @@ class SimpleKnowledgeBase:
         except Exception as e:
             return f"Error getting categories: {str(e)}"
     
-    @tool
     def get_available_food_types(self) -> str:
         """Get all available food types."""
         try:
@@ -211,7 +207,6 @@ class SimpleKnowledgeBase:
         except Exception as e:
             return f"Error getting food types: {str(e)}"
     
-    @tool
     def get_available_restaurants(self) -> str:
         """Get all available restaurants."""
         try:
@@ -235,7 +230,6 @@ class SimpleKnowledgeBase:
             print(f"❌ Error getting restaurants: {e}")
             return f"Error getting restaurants: {str(e)}"
     
-    @tool
     def get_dietary_options(self) -> str:
         """Get all available dietary options."""
         try:
@@ -255,11 +249,34 @@ class SimpleKnowledgeBase:
 # Create global instance
 knowledge_base = SimpleKnowledgeBase()
 
-# Export tools
-query_database_knowledge = knowledge_base.query_database_knowledge
-get_available_cuisines = knowledge_base.get_available_cuisines
-get_available_categories = knowledge_base.get_available_categories
-get_available_food_types = knowledge_base.get_available_food_types
-get_available_restaurants = knowledge_base.get_available_restaurants
-get_dietary_options = knowledge_base.get_dietary_options
+# Create standalone tool functions
+@tool
+def query_database_knowledge(query: str) -> str:
+    """Query the database knowledge base for information about food, restaurants, cuisines, etc."""
+    return knowledge_base.query_database_knowledge(query)
+
+@tool
+def get_available_cuisines() -> str:
+    """Get all available cuisine types."""
+    return knowledge_base.get_available_cuisines()
+
+@tool
+def get_available_categories() -> str:
+    """Get all available food categories."""
+    return knowledge_base.get_available_categories()
+
+@tool
+def get_available_food_types() -> str:
+    """Get all available food types."""
+    return knowledge_base.get_available_food_types()
+
+@tool
+def get_available_restaurants() -> str:
+    """Get all available restaurants."""
+    return knowledge_base.get_available_restaurants()
+
+@tool
+def get_dietary_options() -> str:
+    """Get all available dietary options and tags."""
+    return knowledge_base.get_dietary_options()
 
