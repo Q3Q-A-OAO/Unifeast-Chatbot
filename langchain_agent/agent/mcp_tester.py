@@ -275,7 +275,6 @@ class MCPToolsTester:
                         get_dietary_options
                     )
                     custom_tools = [
-                        search_pinecone,
                         query_database_knowledge,
                         get_available_cuisines,
                         get_available_categories,
