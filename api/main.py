@@ -60,12 +60,7 @@ async def lifespan(app: FastAPI):
         # Initialize the existing MCPToolsTester agent
         chatbot_instance = MCPToolsTester()
         custom_tools = [
-            search_pinecone,
-            query_database_knowledge,
-            get_available_cuisines,
-            get_available_categories,
-            get_available_restaurants,
-            get_dietary_options
+            search_pinecone
         ]
         
         # Try MCP servers first, fallback to Pinecone only
