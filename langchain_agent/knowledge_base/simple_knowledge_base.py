@@ -256,3 +256,4 @@ get_available_categories = knowledge_base.get_available_categories
 get_available_food_types = knowledge_base.get_available_food_types
 get_available_restaurants = knowledge_base.get_available_restaurants
 get_dietary_options = knowledge_base.get_dietary_options
+

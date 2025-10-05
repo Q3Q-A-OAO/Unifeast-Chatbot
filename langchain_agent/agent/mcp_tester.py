@@ -176,7 +176,7 @@ class MCPToolsTester:
                 agent=agent, 
                 tools=tools, 
                 verbose=True,  # Enable verbose logging for debugging
-                max_iterations=5,  # Reduce iteration limit to prevent loops
+                max_iterations=3,  # Very low limit since we use only 1 tool per request
                 max_execution_time=15,  # Reduce timeout to prevent hanging
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
@@ -321,7 +321,7 @@ class MCPToolsTester:
                 agent=agent, 
                 tools=tools, 
                 verbose=True,  # Enable verbose logging for debugging
-                max_iterations=5,  # Reduce iteration limit to prevent loops
+                max_iterations=3,  # Very low limit since we use only 1 tool per request
                 max_execution_time=15,  # Reduce timeout to prevent hanging
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
