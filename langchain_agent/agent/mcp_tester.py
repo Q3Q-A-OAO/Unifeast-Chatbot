@@ -264,8 +264,8 @@ class MCPToolsTester:
             
             # Setup MCP servers if not already done
             if not self.mcp_client:
-                # ONLY SEARCH_PINECONE - NO KNOWLEDGE BASE TOOLS
-                custom_tools = [search_pinecone] if 'search_pinecone' in globals() else []
+                # NO TOOLS FOR TESTING
+                custom_tools = []  # TEMPORARILY DISABLED ALL TOOLS FOR TESTING
                 await self.setup_mcp_servers(custom_tools)
             
             # Create agent using the same logic as start_conversation

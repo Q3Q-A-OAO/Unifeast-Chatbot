@@ -59,9 +59,9 @@ async def main():
         # Initialize tester
         tester = MCPToolsTester()
         
-        # Setup MCP servers with custom tools - ONLY SEARCH_PINECONE (NO KNOWLEDGE BASE)
+        # Setup MCP servers with custom tools - NO TOOLS FOR TESTING
         custom_tools = [
-            search_pinecone
+            # search_pinecone  # TEMPORARILY DISABLED FOR TESTING
         ]
         await tester.setup_mcp_servers(custom_tools)
         
