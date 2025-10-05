@@ -43,21 +43,29 @@ def search_pinecone(
         logger.info(f"Using filter: {filter_dict}")
         
         # Initialize Pinecone client
+        logger.info("Initializing Pinecone client...")
         pc = Pinecone(api_key=settings.PINECONE_API_KEY)
+        logger.info("Pinecone client initialized")
         
         # Get index
+        logger.info(f"Getting Pinecone index: {settings.PINECONE_INDEX_NAME}")
         index = pc.Index(settings.PINECONE_INDEX_NAME)
+        logger.info("Pinecone index retrieved")
         
         # Get embedding for query
+        logger.info("Getting OpenAI embedding...")
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
         response = client.embeddings.create(
             input=query_text,
             model=settings.OPENAI_EMBEDDING_MODEL
         )
         query_embedding = response.data[0].embedding
+        logger.info("OpenAI embedding retrieved")
         
         # Perform search (with or without filter)
+        logger.info("Performing Pinecone search...")
         if filter_dict:
+            logger.info(f"Searching with filter: {filter_dict}")
             search_results = index.query(
                 vector=query_embedding,
                 filter=filter_dict,
@@ -66,12 +74,14 @@ def search_pinecone(
                 include_metadata=True
             )
         else:
+            logger.info("Searching without filter")
             search_results = index.query(
                 vector=query_embedding,
                 top_k=top_k,
                 namespace=settings.PINECONE_NAMESPACE,
                 include_metadata=True
             )
+        logger.info("Pinecone search completed")
         
         # Process results
         food_items = []
