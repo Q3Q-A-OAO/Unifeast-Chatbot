@@ -34,13 +34,7 @@ from contextlib import asynccontextmanager
 from agent.mcp_tester import MCPToolsTester
 from agent.pinecone_search import search_pinecone
 from config.settings import settings
-from knowledge_base.simple_tools import (
-    query_database_knowledge,
-    get_available_cuisines,
-    get_available_categories,
-    get_available_restaurants,
-    get_dietary_options
-)
+# Knowledge base tools removed - using system prompt instead
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -60,12 +54,7 @@ async def lifespan(app: FastAPI):
         # Initialize the existing MCPToolsTester agent
         chatbot_instance = MCPToolsTester()
         custom_tools = [
-            search_pinecone,
-            query_database_knowledge,
-            get_available_cuisines,
-            get_available_categories,
-            get_available_restaurants,
-            get_dietary_options
+            search_pinecone
         ]
         
         # Try MCP servers first, fallback to Pinecone only
