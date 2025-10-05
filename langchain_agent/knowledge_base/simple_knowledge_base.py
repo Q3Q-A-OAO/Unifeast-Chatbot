@@ -253,30 +253,36 @@ knowledge_base = SimpleKnowledgeBase()
 @tool
 def query_database_knowledge(query: str) -> str:
     """Query the database knowledge base for information about food, restaurants, cuisines, etc."""
-    return knowledge_base.query_database_knowledge(query)
+    kb = SimpleKnowledgeBase()
+    return kb.query_database_knowledge(query)
 
 @tool
 def get_available_cuisines() -> str:
     """Get all available cuisine types."""
-    return knowledge_base.get_available_cuisines()
+    kb = SimpleKnowledgeBase()
+    return kb.get_available_cuisines()
 
 @tool
 def get_available_categories() -> str:
     """Get all available food categories."""
-    return knowledge_base.get_available_categories()
+    kb = SimpleKnowledgeBase()
+    return kb.get_available_categories()
 
 @tool
 def get_available_food_types() -> str:
     """Get all available food types."""
-    return knowledge_base.get_available_food_types()
+    kb = SimpleKnowledgeBase()
+    return kb.get_available_food_types()
 
 @tool
 def get_available_restaurants() -> str:
     """Get all available restaurants."""
-    return knowledge_base.get_available_restaurants()
+    kb = SimpleKnowledgeBase()
+    return kb.get_available_restaurants()
 
 @tool
 def get_dietary_options() -> str:
     """Get all available dietary options and tags."""
-    return knowledge_base.get_dietary_options()
+    kb = SimpleKnowledgeBase()
+    return kb.get_dietary_options()
 
