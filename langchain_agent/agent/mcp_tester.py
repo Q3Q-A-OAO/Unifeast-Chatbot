@@ -176,8 +176,8 @@ class MCPToolsTester:
                 agent=agent, 
                 tools=tools, 
                 verbose=True,  # Enable verbose logging for debugging
-                max_iterations=5,  # Allow for knowledge base + search_pinecone workflow
-                max_execution_time=30,  # Allow more time for tool execution
+                max_iterations=3,  # Reduce iterations to prevent loops
+                max_execution_time=60,  # Increase time limit to 60 seconds
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
                 early_stopping_method="force"  # Force stop on iteration limit
@@ -321,8 +321,8 @@ class MCPToolsTester:
                 agent=agent, 
                 tools=tools, 
                 verbose=True,  # Enable verbose logging for debugging
-                max_iterations=5,  # Allow for knowledge base + search_pinecone workflow
-                max_execution_time=30,  # Allow more time for tool execution
+                max_iterations=3,  # Reduce iterations to prevent loops
+                max_execution_time=60,  # Increase time limit to 60 seconds
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
                 early_stopping_method="force"  # Force stop on iteration limit
