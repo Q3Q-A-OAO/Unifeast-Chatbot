@@ -176,7 +176,7 @@ class MCPToolsTester:
                 agent=agent, 
                 tools=tools, 
                 verbose=True,  # Enable verbose logging for debugging
-                max_iterations=3,  # Allow reasonable number of iterations
+                max_iterations=5,  # Allow for knowledge base + search_pinecone workflow
                 max_execution_time=30,  # Allow more time for tool execution
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
@@ -264,8 +264,27 @@ class MCPToolsTester:
             
             # Setup MCP servers if not already done
             if not self.mcp_client:
-                # RESTORED SEARCH_PINECONE TOOL
-                custom_tools = [search_pinecone] if 'search_pinecone' in globals() else []
+                # RESTORED KNOWLEDGE BASE + SEARCH_PINECONE TOOLS
+                try:
+                    from knowledge_base.simple_knowledge_base import (
+                        query_database_knowledge,
+                        get_available_cuisines,
+                        get_available_categories,
+                        get_available_food_types,
+                        get_available_restaurants,
+                        get_dietary_options
+                    )
+                    custom_tools = [
+                        search_pinecone,
+                        query_database_knowledge,
+                        get_available_cuisines,
+                        get_available_categories,
+                        get_available_food_types,
+                        get_available_restaurants,
+                        get_dietary_options
+                    ]
+                except ImportError:
+                    custom_tools = [search_pinecone] if 'search_pinecone' in globals() else []
                 await self.setup_mcp_servers(custom_tools)
             
             # Create agent using the same logic as start_conversation
@@ -302,7 +321,7 @@ class MCPToolsTester:
                 agent=agent, 
                 tools=tools, 
                 verbose=True,  # Enable verbose logging for debugging
-                max_iterations=3,  # Allow reasonable number of iterations
+                max_iterations=5,  # Allow for knowledge base + search_pinecone workflow
                 max_execution_time=30,  # Allow more time for tool execution
                 return_intermediate_steps=True,
                 handle_parsing_errors=True,
