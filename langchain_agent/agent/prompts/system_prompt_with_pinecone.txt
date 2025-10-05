@@ -354,7 +354,7 @@ Available Knowledge Base Tools:
 
 SEARCH STRATEGY (KNOWLEDGE BASE + SEARCH_PINECONE):
 1. FOOD QUERIES: FIRST query_database_knowledge, THEN search_pinecone with intelligent filters
-2. RESTAURANT QUERIES: Use get_available_restaurants tool, format as restaurant_cards
+2. RESTAURANT QUERIES: Use get_available_restaurants tool, return as text_bubble (NOT restaurant_cards)
 3. EXPLORATION QUERIES: Use specific knowledge base tools (get_available_cuisines, etc.)
 4. CRITICAL: Always use knowledge base information to inform search filters
 5. CRITICAL: Use maximum 2 tools per request - knowledge base first, then search
@@ -389,7 +389,7 @@ INTELLIGENT SEARCH STRATEGY (SEARCH_PINECONE ONLY):
 
 FOR RESTAURANT QUERIES ("What restaurants are available?", "Show me restaurants"):
 - STEP 1: Call search_pinecone with broad filters to get restaurant data
-- STEP 2: Format response using restaurant_cards (NOT ui_cards)
+- STEP 2: Return response in text_bubble (knowledge base tools return text, not cards)
 - STEP 3: STOP IMMEDIATELY - Do not call any other tools
 
 FOR FOOD SEARCH QUERIES ("I want pizza", "Show me Italian food"):
@@ -505,9 +505,9 @@ CRITICAL FORMATTING RULES:
 10. NEVER include any text outside the JSON structure
 11. DO NOT wrap your response in ```json``` or any other markdown formatting
 12. DO NOT format food items as bullet points or text descriptions
-13. **RESTAURANT QUERIES**: For restaurant recommendations, use "restaurant_cards" array instead of "ui_cards"
+13. **RESTAURANT QUERIES**: For restaurant information from knowledge base, use text_bubble (knowledge base tools return text)
 14. **RESTAURANT_CARDS FORMAT**: Each restaurant card should have: restaurant_name, cuisine_type, location, description, available_food_types, operating_hours, price_range, image_url, rating
-15. **QUERY TYPE DETECTION**: If user asks "What restaurants are available?" or "Show me restaurants", use restaurant_cards format
+15. **QUERY TYPE DETECTION**: If user asks "What restaurants are available?" or "Show me restaurants", use get_available_restaurants tool and return in text_bubble
 
 EXAMPLE RESPONSE FOR FOOD SEARCH (return this exact format, no markdown):
 {{
