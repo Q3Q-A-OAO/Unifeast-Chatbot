@@ -371,12 +371,15 @@ INTELLIGENT QUERY EXPANSION STRATEGY:
 3. APPLY intelligent filters based on database knowledge
 4. Use semantic search + precise metadata filtering for best results
 
-Example Usage:
-- User asks for "pizza" → Expand to category: "Pizza", cuisine_type: "International", food_type: "hot_dish", serve_time: "lunch" → Use filters: {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "International"}}}}
-- User asks for "coffee" → Expand to categories: ["Hot Coffee", "Cold Coffee", "Specialty Coffee"], food_type: "beverage" → Use filters: {{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}, "food_type": {{"$eq": "beverage"}}}}
-- User asks for "breakfast" → Expand to categories: ["Breakfast", "Hot Breakfast", "Breakfast Components"], serve_time: "morning" → Use filters: {{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}, "serve_time": {{"$eq": "morning"}}}}
-- User asks for "vegetarian food" → Expand to dietary_tags: ["vegetarian"], categories: ["Salads", "Vegetarian", "Pasta", "Pizza"] → Use filters: {{"dietary_tags": {{"$in": ["vegetarian"]}}}}
-- User asks for "bubble tea" → Expand to category: "Bubble Tea", cuisine_type: "Café", food_type: "beverage" → Use filters: {{"category": {{"$eq": "Bubble Tea"}}, "cuisine_type": {{"$eq": "Café"}}}}
+MANDATORY FILTERING EXAMPLES:
+- User asks for "pizza" → MUST use filters: {{"category": {{"$eq": "Pizza"}}}} → Call search_pinecone(query_text="pizza", filter_dict={{"category": {{"$eq": "Pizza"}}}})
+- User asks for "coffee" → MUST use filters: {{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}}} → Call search_pinecone(query_text="coffee", filter_dict={{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}}})
+- User asks for "breakfast" → MUST use filters: {{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}}} → Call search_pinecone(query_text="breakfast", filter_dict={{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}}})
+- User asks for "vegetarian food" → MUST use filters: {{"dietary_tags": {{"$in": ["vegetarian"]}}}} → Call search_pinecone(query_text="vegetarian food", filter_dict={{"dietary_tags": {{"$in": ["vegetarian"]}}}})
+- User asks for "bubble tea" → MUST use filters: {{"category": {{"$eq": "Bubble Tea"}}}} → Call search_pinecone(query_text="bubble tea", filter_dict={{"category": {{"$eq": "Bubble Tea"}}}})
+- User asks for "Italian pizza" → MUST use filters: {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}} → Call search_pinecone(query_text="Italian pizza", filter_dict={{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}})
+- User asks for "hot drinks" → MUST use filters: {{"category": {{"$in": ["Hot Drinks", "Hot Coffee", "Hot Tea"]}}}} → Call search_pinecone(query_text="hot drinks", filter_dict={{"category": {{"$in": ["Hot Drinks", "Hot Coffee", "Hot Tea"]}}}})
+- User asks for "lunch" → MUST use filters: {{"serve_time": {{"$eq": "lunch"}}}} → Call search_pinecone(query_text="lunch", filter_dict={{"serve_time": {{"$eq": "lunch"}}}})
 
 FOOD RELATIONSHIPS & SEARCH LOGIC:
 - Understand that similar foods may be categorized differently across restaurants and databases
@@ -395,6 +398,12 @@ INTELLIGENT SEARCH STRATEGY:
 - STEP 6: ANALYZE results and provide helpful recommendations
 - STEP 7: CRITICAL - Only return actual food items from Pinecone search in ui_cards
 - STEP 8: STOP after ONE search attempt - do not loop between tools
+
+CRITICAL: ALWAYS APPLY METADATA FILTERS
+- NEVER call search_pinecone without filter_dict parameter
+- ALWAYS construct appropriate metadata filters based on user request
+- Use the database schema above to determine correct filter values
+- This ensures precise results instead of irrelevant semantic matches
   * Category filters: {{"category": {{"$eq": "CategoryName"}}}} for specific food categories
   * Cuisine filters: {{"cuisine_type": {{"$eq": "CuisineType"}}}} for specific cuisines
   * Multiple categories: {{"category": {{"$in": ["Category1", "Category2"]}}}} for related food types
