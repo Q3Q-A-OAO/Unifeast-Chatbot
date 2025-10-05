@@ -264,26 +264,12 @@ class MCPToolsTester:
             
             # Setup MCP servers if not already done
             if not self.mcp_client:
-                # RESTORED KNOWLEDGE BASE + SEARCH_PINECONE TOOLS
+                # SEARCH_PINECONE TOOL ONLY (knowledge base info in system prompt)
                 try:
-                    from knowledge_base.simple_tools import (
-                        query_database_knowledge,
-                        get_available_cuisines,
-                        get_available_categories,
-                        get_available_restaurants,
-                        get_dietary_options
-                    )
                     from agent.pinecone_search import search_pinecone
-                    custom_tools = [
-                        search_pinecone,
-                        query_database_knowledge,
-                        get_available_cuisines,
-                        get_available_categories,
-                        get_available_restaurants,
-                        get_dietary_options
-                    ]
+                    custom_tools = [search_pinecone]
                 except ImportError:
-                    custom_tools = [search_pinecone] if 'search_pinecone' in globals() else []
+                    custom_tools = []
                 await self.setup_mcp_servers(custom_tools)
             
             # Create agent using the same logic as start_conversation
