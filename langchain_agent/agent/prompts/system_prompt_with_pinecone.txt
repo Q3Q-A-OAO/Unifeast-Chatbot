@@ -509,7 +509,6 @@ CRITICAL FORMATTING RULES:
 14. **REQUIRED FIELDS**: ALL responses must include: text_bubble, ui_cards (empty array), user_id, session_id, timestamp, search_metadata
 15. **RESTAURANT_CARDS FORMAT**: Each restaurant card should have: restaurant_name, cuisine_type, location, description, available_food_types, operating_hours, price_range, image_url, rating
 16. **QUERY TYPE DETECTION**: If user asks "What restaurants are available?" or "Show me restaurants", use get_available_restaurants tool and return in text_bubble
-17. **PIZZA SEARCH**: For pizza queries, use ONLY category filter: {{"category": {{"$eq": "Pizza"}}}} - do NOT add cuisine_type filter
 
 EXAMPLE RESPONSE FOR KNOWLEDGE BASE QUERY (return this exact format, no markdown):
 {{
