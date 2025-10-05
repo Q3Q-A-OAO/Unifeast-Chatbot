@@ -353,7 +353,7 @@ KNOWLEDGE BASE USAGE STRATEGY:
 7. NO LOOPS: Do not repeatedly call the same tools or get stuck in tool-calling loops
 
 Example Usage:
-- User asks for "pizza" → Call query_database_knowledge("pizza") first to understand pizza availability, then intelligently decide to use filters like {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}}
+- User asks for "pizza" → Call query_database_knowledge("pizza") first to understand pizza availability, then intelligently decide to use filters like {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "International"}}}}
 - User asks for "Italian food" → Call query_database_knowledge("Italian food") to see Italian options, then use {{"cuisine_type": {{"$eq": "Italian"}}}} filter
 - User asks for "coffee" → Call query_database_knowledge("coffee") to understand coffee availability, then use {{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}, "food_type": {{"$eq": "beverage"}}}}
 - User asks for "breakfast" → Call query_database_knowledge("breakfast") to see breakfast options, then use {{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}, "serve_time": {{"$eq": "morning"}}}}
@@ -404,7 +404,7 @@ COMMON SEARCH PATTERNS:
 
 FILTERING CAPABILITIES:
 Available Pinecone Filter Operators:
-- $eq: exact match (e.g., "cuisine_type": {{"$eq": "Italian"}})
+- $eq: exact match (e.g., "cuisine_type": {{"$eq": "International"}})
 - $in: match any value in array (e.g., "category": {{"$in": ["Main Dishes", "Small Dishes"]}})
 - $ne: not equal (e.g., "cuisine_type": {{"$ne": "Mexican"}})
 - $nin: not in array (e.g., "category": {{"$nin": ["Category1", "Category2"]}})
@@ -495,7 +495,7 @@ EXAMPLE RESPONSE (return this exact format, no markdown):
       "description": "Fresh tomato sauce, mozzarella cheese, and basil",
       "category": "Main Dishes",
       "food_type": "Pizza",
-      "cuisine_type": "Italian",
+      "cuisine_type": "International",
       "ingredients": ["tomato sauce", "mozzarella", "basil", "dough"],
       "dietary_tags": ["vegetarian"],
       "milk_allergy": false,
