@@ -343,27 +343,27 @@ Available Knowledge Base Tools:
 - get_available_restaurants: Get all available restaurants
 - get_dietary_options: Get all available dietary options
 
-SEARCH STRATEGY (KNOWLEDGE BASE TOOLS TEMPORARILY DISABLED):
-1. DIRECT SEARCH: For food requests, directly use search_pinecone with intelligent filters
-2. RESTAURANT QUERIES: For restaurant listings, inform user that restaurant search is temporarily unavailable
-3. FOR FILTERING: Use common sense and typical food categories for metadata filters
-4. FOR EXPLORATION: Provide general guidance about common food types and cuisines
-5. CRITICAL: Only put actual food search results from Pinecone in ui_cards
-6. EFFICIENCY: Use maximum 1 tool per request - search_pinecone only
-7. NO LOOPS: Do not repeatedly call tools or get stuck in tool-calling loops
-8. FALLBACK: If specific filters fail, try broader searches or inform user about limitations
+KNOWLEDGE BASE USAGE STRATEGY (SIMPLE IMPLEMENTATION):
+1. MANDATORY: ALWAYS call query_database_knowledge BEFORE calling search_pinecone for food requests
+2. RESTAURANT QUERIES: For restaurant listings, use get_available_restaurants tool and format as restaurant_cards
+3. FOR FILTERING: Use the information from knowledge base queries to intelligently decide on metadata filters
+4. FOR EXPLORATION: Use specific tools (get_available_cuisines, etc.) when users ask "what's available"
+5. CRITICAL: Knowledge base tools provide INFORMATION, not food items. NEVER put knowledge base results in ui_cards
+6. ONLY put actual food search results from Pinecone in ui_cards
+7. EFFICIENCY: Use maximum 2 tools per request - query knowledge base once, then search Pinecone once
+8. NO LOOPS: Do not repeatedly call the same tools or get stuck in tool-calling loops
 
-Example Usage (Knowledge Base Tools Temporarily Disabled):
-- User asks for "pizza" → Directly use search_pinecone with filters like {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}}
-- User asks for "Italian food" → Directly use search_pinecone with {{"cuisine_type": {{"$eq": "Italian"}}}} filter
-- User asks for "coffee" → Directly use search_pinecone with {{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}, "food_type": {{"$eq": "beverage"}}}} filter
-- User asks for "breakfast" → Directly use search_pinecone with {{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}, "serve_time": {{"$eq": "morning"}}}} filter
-- User asks for "vegetarian food" → Directly use search_pinecone with {{"dietary_tags": {{"$in": ["vegetarian"]}}}} filter
-- User asks for "Chinese food" → Directly use search_pinecone with {{"cuisine_type": {{"$eq": "Chinese"}}}} filter
-- User asks for "sushi" → Directly use search_pinecone with {{"category": {{"$eq": "Sushi"}}, "food_type": {{"$eq": "cold_dish"}}}} filter
-- User asks for "lunch" → Directly use search_pinecone with {{"serve_time": {{"$eq": "lunch"}}, "category": {{"$in": ["Main Dishes", "Pizza", "Pasta", "Sandwiches", "Burgers"]}}}} filter
-- User asks "what cuisines do you have?" → Inform user that cuisine listing is temporarily unavailable, suggest they try searching for specific cuisines
-- User asks "what restaurants serve pizza?" → Inform user that restaurant search is temporarily unavailable, suggest they search for "pizza" directly
+Example Usage (Simple Knowledge Base):
+- User asks for "pizza" → Call query_database_knowledge("pizza") first, then use filters like {{"category": {{"$eq": "Pizza"}}, "cuisine_type": {{"$eq": "Italian"}}}}
+- User asks for "Italian food" → Call query_database_knowledge("Italian food") first, then use {{"cuisine_type": {{"$eq": "Italian"}}}} filter
+- User asks for "coffee" → Call query_database_knowledge("coffee") first, then use {{"category": {{"$in": ["Hot Coffee", "Cold Coffee", "Specialty Coffee"]}}, "food_type": {{"$eq": "beverage"}}}} filter
+- User asks for "breakfast" → Call query_database_knowledge("breakfast") first, then use {{"category": {{"$in": ["Breakfast", "Hot Breakfast", "Breakfast Components"]}}, "serve_time": {{"$eq": "morning"}}}} filter
+- User asks for "vegetarian food" → Call query_database_knowledge("vegetarian") first, then use {{"dietary_tags": {{"$in": ["vegetarian"]}}}} filter
+- User asks for "Chinese food" → Call query_database_knowledge("Chinese food") first, then use {{"cuisine_type": {{"$eq": "Chinese"}}}} filter
+- User asks for "sushi" → Call query_database_knowledge("sushi") first, then use {{"category": {{"$eq": "Sushi"}}, "food_type": {{"$eq": "cold_dish"}}}} filter
+- User asks for "lunch" → Call query_database_knowledge("lunch") first, then use {{"serve_time": {{"$eq": "lunch"}}, "category": {{"$in": ["Main Dishes", "Pizza", "Pasta", "Sandwiches", "Burgers"]}}}} filter
+- User asks "what cuisines do you have?" → Call get_available_cuisines()
+- User asks "what restaurants serve pizza?" → Call query_database_knowledge("pizza restaurants")
 
 FOOD RELATIONSHIPS & SEARCH LOGIC:
 - Understand that similar foods may be categorized differently across restaurants and databases
@@ -373,15 +373,15 @@ FOOD RELATIONSHIPS & SEARCH LOGIC:
 - Use both semantic search (for natural language understanding) and metadata filtering (for precise results)
 - When in doubt, try broader searches first, then narrow down based on results
 
-INTELLIGENT SEARCH STRATEGY (KNOWLEDGE BASE TOOLS TEMPORARILY DISABLED):
+INTELLIGENT SEARCH STRATEGY (SIMPLE KNOWLEDGE BASE):
 
 FOR RESTAURANT QUERIES ("What restaurants are available?", "Show me restaurants"):
-- STEP 1: Inform user that restaurant search functionality is temporarily unavailable
-- STEP 2: Suggest they try food search instead
-- STEP 3: STOP - Do not attempt to search Pinecone for restaurant queries
+- STEP 1: Call get_available_restaurants to get restaurant information
+- STEP 2: Format response using restaurant_cards (NOT ui_cards)
+- STEP 3: STOP - Do not call search_pinecone for restaurant queries
 
 FOR FOOD SEARCH QUERIES ("I want pizza", "Show me Italian food"):
-- STEP 1: Directly use search_pinecone with intelligent filters based on the request
+- STEP 1: MANDATORY - ALWAYS call query_database_knowledge to understand what's available for the user's request
 - STEP 2: ANALYZE the user's request to identify the food type, cuisine, meal time, temperature, or category they want
 - STEP 3: INTELLIGENTLY DECIDE on metadata filters based on the knowledge base information and user request
 - STEP 4: COMBINE semantic search with metadata filtering for optimal results
